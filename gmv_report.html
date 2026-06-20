@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMV下降归因分析报告 · 2025年11–12月</title>
+<style>
+:root {
+  --navy:      #0d1b2a;
+  --navy-mid:  #1a2d42;
+  --navy-lite: #243b55;
+  --cold-white:#f0f4f8;
+  --paper:     #ffffff;
+  --text-pri:  #0d1b2a;
+  --text-sec:  #4a6274;
+  --text-dim:  #8aa0b2;
+  --accent:    #c6f135;
+  --red:       #e84855;
+  --blue:      #3a8fd4;
+  --green:     #34c78a;
+  --border:    #dde5ed;
+  --card:      #ffffff;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--cold-white); }
+body {
+  font-family: "PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
+  color: var(--text-pri);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HERO */
+.hero { background: var(--navy); color: #fff; padding: 64px 0 56px; }
+.hero .inner { max-width: 1000px; margin: 0 auto; padding: 0 32px; }
+.hero .kicker {
+  font-family: "SF Mono","JetBrains Mono","Consolas",monospace;
+  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero .kicker::before { content:""; width:24px; height:2px; background:var(--accent); display:inline-block; }
+.hero h1 {
+  font-size: clamp(28px,4vw,48px); font-weight: 800;
+  letter-spacing: -.02em; line-height: 1.15; margin: 0 0 18px; color: #fff;
+}
+.hero h1 em { color: var(--accent); font-style: normal; }
+.hero .sub { font-size: 15px; color: #8aa8c4; max-width: 600px; margin: 0 0 40px; }
+.hero .meta-bar {
+  display: flex; flex-wrap: wrap; gap: 32px;
+  border-top: 1px solid #243b55; padding-top: 28px;
+}
+.hero .meta-item { font-size: 12px; color: #6e8ca4; }
+.hero .meta-item strong { display:block; font-size:14px; color:#d0e4f4; margin-top:4px; font-weight:600; }
+
+/* LAYOUT */
+.body-wrap { max-width: 1000px; margin: 0 auto; padding: 0 32px 100px; }
+
+/* SECTION */
+.sec { margin-top: 72px; }
+.sec-head {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px; border-bottom: 2px solid var(--navy); padding-bottom: 14px;
+}
+.sec-head .badge {
+  font-family:"SF Mono","JetBrains Mono",monospace; font-size:11px;
+  background:var(--navy); color:var(--accent); padding:3px 10px; letter-spacing:.1em;
+}
+.sec-head h2 { font-size:22px; font-weight:800; margin:0; letter-spacing:-.01em; }
+.sec-lede { font-size:14.5px; color:var(--text-sec); max-width:700px; margin:0 0 28px; }
+
+/* KPI STRIP */
+.kpi-strip {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 32px 0;
+}
+.kpi-cell { background: var(--card); padding: 22px 20px; }
+.kpi-cell.red  { border-top: 3px solid var(--red); }
+.kpi-cell.green{ border-top: 3px solid var(--green); }
+.kpi-cell.acc  { border-top: 3px solid var(--accent); }
+.kpi-val { font-size:32px; font-weight:800; letter-spacing:-.02em; line-height:1; }
+.kpi-val.neg { color: var(--red); }
+.kpi-val.pos { color: var(--green); }
+.kpi-val.dim { color: var(--accent); filter: brightness(.75); }
+.kpi-label { font-size:12px; color:var(--text-dim); margin-top:8px; line-height:1.4; }
+
+/* CALLOUT */
+.callout { border-left:4px solid var(--navy); background:#eef4fa; padding:16px 20px; margin:20px 0; font-size:14px; }
+.callout.warn { border-color:var(--red); background:#fff0f1; }
+.callout.note { border-color:var(--blue); background:#f0f6fc; }
+.callout.ok   { border-color:var(--green); background:#f0faf5; }
+.callout b { font-weight:700; }
+
+/* ATTR BAR */
+.attr-bar-wrap { background:var(--card); border:1px solid var(--border); padding:28px 28px 22px; }
+.attr-bar-wrap h3 {
+  font-size:13px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--text-dim); margin:0 0 20px;
+}
+.attr-row { margin-bottom:18px; }
+.attr-meta { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+.attr-meta .factor { font-weight:700; }
+.attr-meta .nums { font-family:"SF Mono","JetBrains Mono",monospace; font-size:12px; }
+.attr-track { height:26px; background:#eef4fa; position:relative; border:1px solid var(--border); }
+.attr-fill {
+  height:100%; display:flex; align-items:center; justify-content:flex-end;
+  padding:0 8px; font-family:"SF Mono","JetBrains Mono",monospace;
+  font-size:11px; font-weight:700; color:#fff;
+}
+.attr-fill.neg { background:var(--red); }
+.attr-fill.pos { background:var(--green); }
+.attr-footnote { font-size:12px; color:var(--text-dim); margin-top:14px; font-style:italic; }
+
+/* GRID */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+
+/* CARD */
+.card { background:var(--card); border:1px solid var(--border); padding:22px 24px; }
+.card h3 { font-size:15px; font-weight:700; margin:0 0 10px; }
+.card p { font-size:14px; color:var(--text-sec); margin:0 0 8px; }
+
+/* CHART BOX */
+.chart-box { background:var(--card); border:1px solid var(--border); padding:22px 22px 14px; }
+.chart-box h3 {
+  font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--text-dim); margin:0 0 14px;
+}
+
+/* DATA TABLE */
+.dt-wrap { background:var(--card); border:1px solid var(--border); margin:20px 0; overflow-x:auto; }
+table.dt { width:100%; border-collapse:collapse; font-size:13.5px; }
+table.dt th {
+  text-align:left; font-family:"SF Mono","JetBrains Mono",monospace; font-size:11px;
+  text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim);
+  background:#f6f9fc; padding:10px 14px; border-bottom:2px solid var(--border); white-space:nowrap;
+}
+table.dt td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+table.dt tr:last-child td { border-bottom:none; }
+table.dt td.r { text-align:right; font-family:"SF Mono","JetBrains Mono",monospace; }
+table.dt td.neg { color:var(--red); font-weight:700; }
+table.dt td.pos { color:var(--green); font-weight:700; }
+table.dt tr.hi td { background:#fffbf0; }
+
+/* FUNNEL */
+.fnl { background:var(--card); border:1px solid var(--border); margin:24px 0; }
+.fnl-hd {
+  display:grid; grid-template-columns:160px 1fr 160px;
+  background:#f6f9fc; border-bottom:2px solid var(--border);
+}
+.fnl-hd > div {
+  font-family:"SF Mono","JetBrains Mono",monospace; font-size:11px;
+  text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); padding:10px 14px;
+}
+.fnl-row { display:grid; grid-template-columns:160px 1fr 160px; border-bottom:1px solid var(--border); }
+.fnl-row:last-child { border-bottom:none; }
+.fnl-name { font-weight:700; font-size:13.5px; padding:14px; display:flex; align-items:center; }
+.fnl-bars { padding:10px 14px; display:flex; flex-direction:column; gap:5px; justify-content:center; }
+.fbar-row { display:flex; align-items:center; gap:7px; }
+.fbar-mo { font-size:10.5px; color:var(--text-dim); width:34px; flex-shrink:0; font-family:"SF Mono","JetBrains Mono",monospace; }
+.fbar-track { flex:1; height:16px; background:#eef4fa; border:1px solid var(--border); }
+.fbar-fill { height:100%; }
+.fbar-v { font-size:10.5px; font-family:"SF Mono","JetBrains Mono",monospace; color:var(--text-sec); width:42px; text-align:right; flex-shrink:0; }
+.fnl-diff { padding:14px; display:flex; flex-direction:column; justify-content:center; }
+.fnl-diff .d-val { font-family:"SF Mono","JetBrains Mono",monospace; font-size:13px; font-weight:700; }
+.fnl-diff .d-val.neg { color:var(--red); }
+.fnl-diff .d-val.pos { color:var(--green); }
+.fnl-diff .d-val.flat { color:var(--text-dim); }
+.fnl-diff small { font-size:11px; color:var(--text-dim); display:block; margin-top:2px; }
+
+/* DONUT ROW */
+.donut-row { display:flex; align-items:center; gap:20px; }
+.donut-legend { flex:1; display:flex; flex-direction:column; gap:10px; }
+.legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.legend-val { font-family:"SF Mono","JetBrains Mono",monospace; font-size:11.5px; color:var(--text-sec); margin-left:auto; }
+
+/* FIG */
+.fig { margin:24px 0; }
+.fig img { width:100%; display:block; border:1px solid var(--border); background:#fff; }
+.fig .cap { font-size:12.5px; color:var(--text-dim); margin-top:8px; padding-left:12px; border-left:2px solid var(--border); }
+
+/* FOOTER */
+.report-footer {
+  margin-top:80px; padding:20px 0 0; border-top:2px solid var(--navy);
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+  font-size:11.5px; font-family:"SF Mono","JetBrains Mono",monospace;
+  color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;
+}
+
+@media (max-width:768px){
+  .kpi-strip { grid-template-columns:1fr 1fr; }
+  .two-col,.three-col { grid-template-columns:1fr; }
+  .fnl-hd,.fnl-row { grid-template-columns:100px 1fr 120px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="inner">
+    <div class="kicker">GMV Decline Analysis · D2C Marketing Funnel</div>
+    <h1>12月GMV下降 <em>–7.45%</em><br>归因分析报告</h1>
+    <p class="sub">基于 d2c_marketing_funnel_data.csv（12万条记录），对2025年11→12月GMV环比下滑进行三因子拆解，追溯至渠道、Campaign与漏斗转化环节。</p>
+    <div class="meta-bar">
+      <div class="meta-item">数据集<strong>d2c_marketing_funnel_data.csv</strong></div>
+      <div class="meta-item">数据量<strong>120,000 行 · 17 列</strong></div>
+      <div class="meta-item">分析区间<strong>2025-07 至 2025-12</strong></div>
+      <div class="meta-item">对比月份<strong>2025-11 vs 2025-12</strong></div>
+      <div class="meta-item">AOV说明<strong>数据受限，待独立数据集补充</strong></div>
+    </div>
+  </div>
+</header>
+
+<div class="body-wrap">
+
+<!-- 00 核心结论 -->
+<section class="sec">
+  <div class="sec-head"><span class="badge">EXEC SUMMARY</span><h2>核心结论一览</h2></div>
+  <div class="kpi-strip">
+    <div class="kpi-cell red"><div class="kpi-val neg">−7.45%</div><div class="kpi-label">GMV 环比（11→12月）<br>¥2,741,498 → ¥2,537,147</div></div>
+    <div class="kpi-cell red"><div class="kpi-val neg">−9.17%</div><div class="kpi-label">UV 环比下降（主凶）<br>19,700 → 17,894</div></div>
+    <div class="kpi-cell green"><div class="kpi-val pos">+2.98%</div><div class="kpi-label">CVR 环比微升（正向抵消）<br>6.68% → 6.88%</div></div>
+    <div class="kpi-cell acc"><div class="kpi-val dim">−1.06%</div><div class="kpi-label">AOV 环比小降（次要因子）<br>¥2,083 → ¥2,061</div></div>
+  </div>
+  <div class="callout warn">
+    <b>核心诊断</b> — UV 流量下滑是本次 GMV 下降的绝对主因，贡献了 <b>122.99%</b> 的下跌量，且流量损失高度集中在 <b>Paid Ads × Discount Campaign</b> 的新客（流失 390 人，贡献渠道总下跌 39.39%）。CVR 的小幅改善（+0.20pp）部分对冲了压力，但体量不足以抵消 UV 的塌陷。
+  </div>
+</section>
+
+<!-- 01 GMV趋势 + 三因子 -->
+<section class="sec">
+  <div class="sec-head"><span class="badge">01</span><h2>GMV 趋势与三因子归因拆解</h2></div>
+  <p class="sec-lede">GMV = UV × CVR × AOV。通过连锁替代法，将12月 GMV 下滑额（−¥204,351）精确拆分至各驱动因子的独立贡献。</p>
+
+  <div class="two-col">
+    <div class="chart-box">
+      <h3>月度 GMV 趋势（万元）</h3>
+      <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+<line x1="50" y1="145.1" x2="444" y2="145.1" stroke="#dde5ed" stroke-width="1"/>
+<text x="45" y="149.1" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">250</text>
+<line x1="50" y1="124.3" x2="444" y2="124.3" stroke="#dde5ed" stroke-width="1"/>
+<text x="45" y="128.3" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">260</text>
+<line x1="50" y1="103.4" x2="444" y2="103.4" stroke="#dde5ed" stroke-width="1"/>
+<text x="45" y="107.4" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">270</text>
+<line x1="50" y1="82.6" x2="444" y2="82.6" stroke="#dde5ed" stroke-width="1"/>
+<text x="45" y="86.6" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">280</text>
+<line x1="50" y1="61.7" x2="444" y2="61.7" stroke="#dde5ed" stroke-width="1"/>
+<text x="45" y="65.7" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">290</text>
+<line x1="50" y1="40.9" x2="444" y2="40.9" stroke="#dde5ed" stroke-width="1"/>
+<text x="45" y="44.9" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">300</text>
+<rect x="64.8" y="43.5" width="36.1" height="122.5" fill="#3a8fd4" rx="2"/>
+<text x="82.8" y="38.5" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">298.75</text>
+<text x="82.8" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Jul</text>
+<rect x="130.4" y="73.7" width="36.1" height="92.3" fill="#3a8fd4" rx="2"/>
+<text x="148.5" y="68.7" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">284.27</text>
+<text x="148.5" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Aug</text>
+<rect x="196.1" y="48.4" width="36.1" height="117.6" fill="#3a8fd4" rx="2"/>
+<text x="214.2" y="43.4" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">296.38</text>
+<text x="214.2" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Sep</text>
+<rect x="261.8" y="52.5" width="36.1" height="113.5" fill="#3a8fd4" rx="2"/>
+<text x="279.8" y="47.5" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">294.4</text>
+<text x="279.8" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Oct</text>
+<rect x="327.4" y="94.8" width="36.1" height="71.2" fill="#e84855" rx="2"/>
+<text x="345.5" y="89.8" text-anchor="middle" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">274.15</text>
+<text x="345.5" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Nov</text>
+<rect x="393.1" y="137.4" width="36.1" height="28.6" fill="#c0243b" rx="2"/>
+<text x="411.2" y="132.4" text-anchor="middle" font-size="10" fill="#c0243b" font-weight="bold" font-family="monospace">253.71</text>
+<text x="411.2" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Dec</text>
+</svg>
+    </div>
+    <div class="attr-bar-wrap">
+      <h3>11→12月 GMV 变动归因（连锁替代法）</h3>
+      <div class="attr-row">
+        <div class="attr-meta">
+          <span class="factor">📉 UV 流量下滑</span>
+          <span class="nums" style="color:var(--red)">−¥251,327 &nbsp;|&nbsp; 贡献 <b>122.99%</b></span>
+        </div>
+        <div class="attr-track"><div class="attr-fill neg" style="width:100%">−122.99%</div></div>
+      </div>
+      <div class="attr-row">
+        <div class="attr-meta">
+          <span class="factor">📈 CVR 转化率改善</span>
+          <span class="nums" style="color:var(--green)">+¥74,255 &nbsp;|&nbsp; 贡献 <b>−36.34%</b>（抵消）</span>
+        </div>
+        <div class="attr-track"><div class="attr-fill pos" style="width:36.34%">+36.34%</div></div>
+      </div>
+      <div class="attr-row">
+        <div class="attr-meta">
+          <span class="factor">📉 AOV 客单价小降</span>
+          <span class="nums" style="color:var(--red)">−¥27,279 &nbsp;|&nbsp; 贡献 <b>13.35%</b></span>
+        </div>
+        <div class="attr-track"><div class="attr-fill neg" style="width:13.35%">−13.35%</div></div>
+      </div>
+      <div class="attr-row">
+        <div class="attr-meta">
+          <span class="factor" style="color:var(--text-dim)">∑ 合计</span>
+          <span class="nums">−¥204,351 &nbsp;|&nbsp; <b>100.00%</b> ✓</span>
+        </div>
+      </div>
+      <p class="attr-footnote">注：AOV 受限于数据集记录颗粒度，将由独立数据集补充分析</p>
+    </div>
+  </div>
+
+  <div class="dt-wrap" style="margin-top:24px;">
+    <table class="dt">
+      <thead><tr><th>月份</th><th>UV</th><th>购买UV</th><th>CVR</th><th>AOV (¥)</th><th>GMV (¥)</th><th>GMV MoM</th></tr></thead>
+      <tbody>
+        <tr><td>2025-07</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,987,536</td><td class="r">—</td></tr>
+        <tr><td>2025-08</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,842,661</td><td class="r neg">−4.85%</td></tr>
+        <tr><td>2025-09</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,963,808</td><td class="r pos">+4.26%</td></tr>
+        <tr><td>2025-10</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,943,950</td><td class="r neg">−0.67%</td></tr>
+        <tr class="hi"><td><b>2025-11</b></td><td class="r">19,700</td><td class="r">1,316</td><td class="r">6.68%</td><td class="r">2,083</td><td class="r"><b>2,741,498</b></td><td class="r neg">−6.88%</td></tr>
+        <tr class="hi"><td><b>2025-12 ↓</b></td><td class="r neg">17,894</td><td class="r">1,231</td><td class="r pos">6.88%</td><td class="r neg">2,061</td><td class="r neg"><b>2,537,147</b></td><td class="r neg">−7.45%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 02 UV归因 -->
+<section class="sec">
+  <div class="sec-head"><span class="badge">02</span><h2>UV 下降归因：用户 → 渠道 → Campaign</h2></div>
+  <p class="sec-lede">UV 环比下滑 1,806 人（−9.17%）。从用户结构切入，逐层下钻至渠道和 Campaign 维度，定位核心流失源。</p>
+
+  <div class="two-col">
+    <div class="chart-box">
+      <h3>12月 UV 用户结构（17,894人）</h3>
+      <div class="donut-row" style="min-height:160px;">
+        <div style="width:160px;flex-shrink:0;"><svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
+<path d="M 80.00 38.00 L 80.00 10.00 A 70 70 0 1 1 36.59 25.09 L 53.95 47.05 A 42 42 0 1 0 80.00 38.00 Z" fill="#3a8fd4"/>
+<path d="M 53.95 47.05 L 36.59 25.09 A 70 70 0 0 1 70.61 10.63 L 74.37 38.38 A 42 42 0 0 0 53.95 47.05 Z" fill="#c6f135"/>
+<path d="M 74.37 38.38 L 70.61 10.63 A 70 70 0 0 1 80.00 10.00 L 80.00 38.00 A 42 42 0 0 0 74.37 38.38 Z" fill="#e84855"/>
+<text x="80" y="74" text-anchor="middle" font-size="11" fill="#4a6274" font-weight="bold">UV</text>
+<text x="80" y="90" text-anchor="middle" font-size="11" fill="#4a6274" font-weight="bold">结构</text>
+</svg></div>
+        <div class="donut-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#3a8fd4"></span>新客户<span class="legend-val">15,989人 · 89.35%</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#c6f135"></span>回流客户<span class="legend-val">1,522人 · 8.51%</span></div>
+          <div class="legend-item"><span class="legend-dot" style="background:#e84855"></span>留存客户<span class="legend-val">383人 · 2.14%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>11 vs 12月 UV 用户结构对比</h3>
+      <div class="dt-wrap" style="margin:10px 0 0;border:none;">
+        <table class="dt">
+          <thead><tr><th>客群</th><th>11月</th><th>12月</th><th>变动</th><th>贡献</th></tr></thead>
+          <tbody>
+            <tr class="hi"><td><b>新客户 ⚠️</b></td><td class="r">17,996</td><td class="r">15,989</td><td class="r neg">−2,007</td><td class="r neg"><b>111.1%</b></td></tr>
+            <tr><td>唤醒客户</td><td class="r">1,255</td><td class="r">1,522</td><td class="r pos">+267</td><td class="r pos">−14.8%</td></tr>
+            <tr><td>留存客户</td><td class="r">449</td><td class="r">383</td><td class="r neg">−66</td><td class="r neg">3.6%</td></tr>
+            <tr style="background:#f6f9fc"><td><b>合计</b></td><td class="r"><b>19,700</b></td><td class="r"><b>17,894</b></td><td class="r neg"><b>−1,806</b></td><td class="r">100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:10px;">唤醒客户逆势增长 +267，对冲了部分新客流失；留存客户长期偏低（2.1%），建议核实产品耐用品属性。</p>
+    </div>
+  </div>
+
+  <div class="callout note" style="margin-top:20px;">
+    <b>结构性风险</b> — 大盘 89% 依赖新客，一旦拉新渠道效率下滑，GMV 将直接承压，难以由存量用户缓冲。这是比单月下滑更深层的业务风险。
+  </div>
+
+  <div class="chart-box" style="margin-top:28px;">
+    <h3>新客流失渠道贡献（共流失 2,046 人次 · 含跨渠道重复）</h3>
+    <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+<text x="62" y="44.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Paid Ads</text>
+<rect x="70" y="24.1" width="374.0" height="14.3" fill="#b8d4ec" rx="2"/>
+<text x="448.0" y="38.5" font-size="10" fill="#4a6274" font-family="monospace">8,070</text>
+<rect x="70" y="42.5" width="336.6" height="14.3" fill="#e84855" rx="2"/>
+<text x="410.6463444857497" y="58.9" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">7,264</text>
+<text x="62" y="85.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Organic</text>
+<rect x="70" y="65.2" width="255.6" height="14.3" fill="#b8d4ec" rx="2"/>
+<text x="329.6361833952912" y="79.5" font-size="10" fill="#4a6274" font-family="monospace">5,516</text>
+<rect x="70" y="83.5" width="221.2" height="14.3" fill="#e84855" rx="2"/>
+<text x="295.1558859975217" y="99.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">4,772</text>
+<text x="62" y="126.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Social</text>
+<rect x="70" y="106.2" width="126.8" height="14.3" fill="#b8d4ec" rx="2"/>
+<text x="200.8448574969021" y="120.5" font-size="10" fill="#4a6274" font-family="monospace">2,737</text>
+<rect x="70" y="124.5" width="112.2" height="14.3" fill="#e84855" rx="2"/>
+<text x="186.2463444857497" y="140.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">2,422</text>
+<text x="62" y="167.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Email</text>
+<rect x="70" y="147.2" width="83.7" height="14.3" fill="#b8d4ec" rx="2"/>
+<text x="157.6981412639405" y="161.5" font-size="10" fill="#4a6274" font-family="monospace">1,806</text>
+<rect x="70" y="165.5" width="75.3" height="14.3" fill="#e84855" rx="2"/>
+<text x="149.3097893432466" y="181.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">1,625</text>
+<rect x="70" y="188" width="12" height="8" fill="#b8d4ec" rx="1"/>
+<text x="86" y="195" font-size="10" fill="#4a6274">11月</text>
+<rect x="126" y="188" width="12" height="8" fill="#e84855" rx="1"/>
+<text x="142" y="195" font-size="10" fill="#e84855">12月</text>
+</svg>
+  </div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr><th>渠道</th><th>11月新客</th><th>12月新客</th><th>11月占比</th><th>12月占比</th><th>变动人次</th><th>贡献占比</th></tr></thead>
+      <tbody>
+        <tr class="hi"><td><b>Paid Ads ⚠️</b></td><td class="r">8,070</td><td class="r">7,264</td><td class="r">44.51%</td><td class="r">45.17%</td><td class="r neg">−806</td><td class="r neg"><b>39.39%</b></td></tr>
+        <tr><td>Organic</td><td class="r">5,516</td><td class="r">4,772</td><td class="r">30.43%</td><td class="r">29.67%</td><td class="r neg">−744</td><td class="r neg">36.36%</td></tr>
+        <tr><td>Social</td><td class="r">2,737</td><td class="r">2,422</td><td class="r">15.10%</td><td class="r">15.06%</td><td class="r neg">−315</td><td class="r neg">15.40%</td></tr>
+        <tr><td>Email</td><td class="r">1,806</td><td class="r">1,625</td><td class="r">9.96%</td><td class="r">10.10%</td><td class="r neg">−181</td><td class="r neg">8.85%</td></tr>
+        <tr style="background:#f6f9fc"><td><b>合计</b></td><td class="r"><b>18,129</b></td><td class="r"><b>16,083</b></td><td class="r">—</td><td class="r">—</td><td class="r neg"><b>−2,046</b></td><td class="r">100%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout warn">
+    <b>Discount Campaign 是跨渠道最大公约数</b> — 新客下降严重程度从重到轻：Paid Ads → Organic → Social → Email。Discount 在各渠道内均占约 50% 新客，其跨渠道同步下滑高度指向促销机制问题，而非单一渠道的运营失误。
+  </div>
+
+  <div class="chart-box" style="margin-top:20px;">
+    <h3>新客流失 Campaign 下钻（渠道 × Campaign，按贡献排序）</h3>
+    <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+<text x="122" y="36.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="bold">PaidAds·Discount</text>
+<rect x="130" y="20.9" width="250.0" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="33.2" width="226.0" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="36.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−390</text>
+<text x="122" y="68.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="bold">Organic·Discount</text>
+<rect x="130" y="53.4" width="167.5" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="65.8" width="145.6" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="68.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−357</text>
+<text x="122" y="101.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">PaidAds·NewLaunch</text>
+<rect x="130" y="85.8" width="148.8" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="98.2" width="133.8" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="101.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−244</text>
+<text x="122" y="133.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Organic·Influencer</text>
+<rect x="130" y="118.3" width="71.1" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="130.8" width="57.7" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="133.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−218</text>
+<text x="122" y="166.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">PaidAds·Influencer</text>
+<rect x="130" y="150.8" width="99.5" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="163.2" width="88.3" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="166.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−181</text>
+<text x="122" y="198.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Organic·NewLaunch</text>
+<rect x="130" y="183.3" width="101.6" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="195.8" width="91.1" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="198.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−171</text>
+<text x="122" y="231.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Social·NewLaunch</text>
+<rect x="130" y="215.8" width="51.4" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="228.2" width="43.4" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="231.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−130</text>
+<text x="122" y="263.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Social·Discount</text>
+<rect x="130" y="248.3" width="83.9" height="10.4" fill="#b8d4ec" rx="1"/>
+<rect x="130" y="260.8" width="76.9" height="10.4" fill="#e84855" rx="1"/>
+<text x="384" y="263.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−114</text>
+<rect x="130" y="286" width="12" height="8" fill="#b8d4ec" rx="1"/>
+<text x="146" y="293" font-size="10" fill="#4a6274">11月</text>
+<rect x="186" y="286" width="12" height="8" fill="#e84855" rx="1"/>
+<text x="202" y="293" font-size="10" fill="#e84855">12月</text>
+<text x="384" y="293" font-size="10" fill="#4a6274" font-family="monospace">变动</text>
+</svg>
+  </div>
+
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead><tr><th>渠道</th><th>Campaign</th><th>11月</th><th>12月</th><th>渠道内11月占比</th><th>渠道内12月占比</th><th>变动</th><th>贡献</th></tr></thead>
+      <tbody>
+        <tr class="hi"><td><b>Paid Ads</b></td><td><b>Discount ⚠️</b></td><td class="r">4,062</td><td class="r">3,672</td><td class="r">50.17%</td><td class="r">50.43%</td><td class="r neg">−390</td><td class="r neg"><b>18.97%</b></td></tr>
+        <tr class="hi"><td>Organic</td><td><b>Discount ⚠️</b></td><td class="r">2,722</td><td class="r">2,365</td><td class="r">49.24%</td><td class="r">49.46%</td><td class="r neg">−357</td><td class="r neg"><b>17.36%</b></td></tr>
+        <tr><td>Paid Ads</td><td>New Launch</td><td class="r">2,418</td><td class="r">2,174</td><td class="r">29.87%</td><td class="r">29.86%</td><td class="r neg">−244</td><td class="r neg">11.87%</td></tr>
+        <tr><td>Organic</td><td>Influencer</td><td class="r">1,155</td><td class="r">937</td><td class="r">20.89%</td><td class="r">19.59%</td><td class="r neg">−218</td><td class="r neg">10.60%</td></tr>
+        <tr><td>Paid Ads</td><td>Influencer</td><td class="r">1,616</td><td class="r">1,435</td><td class="r">19.96%</td><td class="r">19.71%</td><td class="r neg">−181</td><td class="r neg">8.80%</td></tr>
+        <tr><td>Organic</td><td>New Launch</td><td class="r">1,651</td><td class="r">1,480</td><td class="r">29.87%</td><td class="r">30.95%</td><td class="r neg">−171</td><td class="r neg">8.32%</td></tr>
+        <tr><td>Social</td><td>New Launch</td><td class="r">835</td><td class="r">705</td><td class="r">30.47%</td><td class="r">29.07%</td><td class="r neg">−130</td><td class="r neg">6.32%</td></tr>
+        <tr><td>Social</td><td>Discount</td><td class="r">1,363</td><td class="r">1,249</td><td class="r">49.74%</td><td class="r">51.51%</td><td class="r neg">−114</td><td class="r neg">5.54%</td></tr>
+        <tr><td>Email</td><td>Discount</td><td class="r">918</td><td class="r">822</td><td class="r">50.83%</td><td class="r">50.55%</td><td class="r neg">−96</td><td class="r neg">4.67%</td></tr>
+        <tr><td>Social</td><td>Influencer</td><td class="r">542</td><td class="r">471</td><td class="r">19.78%</td><td class="r">19.42%</td><td class="r neg">−71</td><td class="r neg">3.45%</td></tr>
+        <tr><td>Email</td><td>New Launch</td><td class="r">539</td><td class="r">479</td><td class="r">29.84%</td><td class="r">29.46%</td><td class="r neg">−60</td><td class="r neg">2.92%</td></tr>
+        <tr><td>Email</td><td>Influencer</td><td class="r">349</td><td class="r">325</td><td class="r">19.32%</td><td class="r">19.99%</td><td class="r neg">−24</td><td class="r neg">1.17%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout note" style="margin-top:4px;">
+    <b>口径说明</b> — 渠道人次加总（−2,046）高于纯 UV 人数（−2,007），系同一用户从多渠道进入导致重复计数，方向性结论不受影响。
+  </div>
+</section>
+
+<!-- 03 CVR漏斗 -->
+<section class="sec">
+  <div class="sec-head"><span class="badge">03</span><h2>CVR 漏斗分析：整体 + 客群切片</h2></div>
+  <p class="sec-lede">大盘 CVR 环比微升 +0.20pp（6.68% → 6.88%），但各环节表现高度分化。按新客 / 唤醒 / 留存切片后，问题节点与责任客群更清晰。</p>
+
+  <!-- 漏斗 -->
+  <div class="fnl">
+    <div class="fnl-hd"><div>漏斗环节</div><div>11月 / 12月 到达人数</div><div>环节转化率变动</div></div>
+
+    <div class="fnl-row">
+      <div class="fnl-name">① 首页访问</div>
+      <div class="fnl-bars">
+        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:100%;background:#3a8fd4;opacity:.6"></div></div><span class="fbar-v">19,700</span></div>
+        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:90.8%;background:#3a8fd4"></div></div><span class="fbar-v">17,894</span></div>
+      </div>
+      <div class="fnl-diff"><span class="d-val neg">−9.17%</span><small>UV 流量减少</small></div>
+    </div>
+
+    <div class="fnl-row">
+      <div class="fnl-name">② 详情页浏览</div>
+      <div class="fnl-bars">
+        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:64.81%;background:#5fa8e8;opacity:.6"></div></div><span class="fbar-v">12,767</span></div>
+        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:65.17%;background:#5fa8e8"></div></div><span class="fbar-v">11,662</span></div>
+      </div>
+      <div class="fnl-diff"><span class="d-val pos">+0.36pp</span><small>64.81% → 65.17%</small></div>
+    </div>
+
+    <div class="fnl-row">
+      <div class="fnl-name">③ 加购物车 ⚠️</div>
+      <div class="fnl-bars">
+        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:35.58%;background:#e84855;opacity:.5"></div></div><span class="fbar-v">4,543</span></div>
+        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:34.41%;background:#e84855"></div></div><span class="fbar-v">4,013</span></div>
+      </div>
+      <div class="fnl-diff"><span class="d-val neg">−1.17pp</span><small>35.58% → 34.41%<br>主要拖累节点</small></div>
+    </div>
+
+    <div class="fnl-row">
+      <div class="fnl-name">④ 开始结算</div>
+      <div class="fnl-bars">
+        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:58.88%;background:#34c78a;opacity:.5"></div></div><span class="fbar-v">2,675</span></div>
+        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:59.93%;background:#34c78a"></div></div><span class="fbar-v">2,405</span></div>
+      </div>
+      <div class="fnl-diff"><span class="d-val pos">+1.05pp</span><small>58.88% → 59.93%</small></div>
+    </div>
+
+    <div class="fnl-row">
+      <div class="fnl-name">⑤ 支付完成</div>
+      <div class="fnl-bars">
+        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:49.2%;background:#7db83a;opacity:.5"></div></div><span class="fbar-v">1,316</span></div>
+        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:51.19%;background:#7db83a"></div></div><span class="fbar-v">1,231</span></div>
+      </div>
+      <div class="fnl-diff"><span class="d-val pos">+1.99pp</span><small>49.20% → 51.19%</small></div>
+    </div>
+  </div>
+
+  <!-- 客群切片 -->
+  <div class="two-col" style="margin-top:28px;">
+    <div class="card">
+      <h3>⚠️ 环节 2→3（详情页→加购）客群切片</h3>
+      <p>新客转化率 <b style="color:var(--red)">−1.59pp</b>，体量占比 90%，对大盘贡献了 <b>−143.6%</b> 的拖累；唤醒 / 留存均有改善但体量小。</p>
+      <div class="dt-wrap" style="margin:10px 0 0;border:none;">
+        <table class="dt">
+          <thead><tr><th>客群</th><th>11月CVR</th><th>12月CVR</th><th>变动</th><th>贡献</th></tr></thead>
+          <tbody>
+            <tr><td>唤醒客户</td><td class="r">35.14%</td><td class="r">36.78%</td><td class="r pos">+1.64pp</td><td class="r pos">+12.1%</td></tr>
+            <tr class="hi"><td><b>新客户 ⚠️</b></td><td class="r">35.60%</td><td class="r">34.01%</td><td class="r neg">−1.59pp</td><td class="r neg"><b>−143.6%</b></td></tr>
+            <tr><td>留存客户</td><td class="r">36.24%</td><td class="r">41.44%</td><td class="r pos">+5.20pp</td><td class="r pos">+11.7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>✅ 环节 4→5（结算→支付）客群切片</h3>
+      <p>三类客群全面正向；留存客户 <b style="color:var(--green)">+23.64pp</b>，支付体验健康，非当前问题节点。</p>
+      <div class="dt-wrap" style="margin:10px 0 0;border:none;">
+        <table class="dt">
+          <thead><tr><th>客群</th><th>11月CVR</th><th>12月CVR</th><th>变动</th><th>贡献</th></tr></thead>
+          <tbody>
+            <tr><td>唤醒客户</td><td class="r">46.11%</td><td class="r">49.34%</td><td class="r pos">+3.24pp</td><td class="r pos">+5.3%</td></tr>
+            <tr><td>新客户</td><td class="r">49.82%</td><td class="r">51.30%</td><td class="r pos">+1.48pp</td><td class="r pos">+27.7%</td></tr>
+            <tr><td><b>留存客户</b></td><td class="r">30.91%</td><td class="r">54.55%</td><td class="r pos">+23.64pp</td><td class="r pos">+10.7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout ok" style="margin-top:20px;">
+    <b>CVR 小结</b> — 漏斗唯一问题节点是 <b>环节2→3（详情页→加购）</b>，由新客转化率下滑 −1.59pp 拖累。可能原因：商品价格缺乏吸引力 / 详情页体验下降（跳出率 / 停留时长）/ 折扣触发逻辑不足。4→5 环节三类客群全面改善，支付体验无短板。
+  </div>
+</section>
+
+<!-- 04 综合诊断 -->
+<section class="sec">
+  <div class="sec-head"><span class="badge">04</span><h2>综合诊断与下一步验证方向</h2></div>
+
+  <div class="three-col">
+    <div class="card" style="border-top:3px solid var(--red);">
+      <h3 style="color:var(--red)">🔴 流量侧（UV）优先级：高</h3>
+      <p><b>问题：</b>Paid Ads × Discount 新客流失 390 人（19%），Organic × Discount 次之（17%），Discount 跨渠道同步下滑。</p>
+      <p><b>建议验证：</b></p>
+      <p>① 折扣率 / 优惠门槛 12 月是否有调整</p>
+      <p>② Paid Ads 预算/竞价（CPM、CPC、曝光量）</p>
+      <p>③ Discount 广告素材 CTR 对比</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--red);">
+      <h3 style="color:var(--red)">🔴 转化侧（CVR 2→3）优先级：中</h3>
+      <p><b>问题：</b>新客在详情页→加购转化率 −1.59pp，体量权重大，贡献 −143.6% 的大盘拖累。</p>
+      <p><b>建议验证：</b></p>
+      <p>① 商品详情页 12 月停留时长 / 跳出率</p>
+      <p>② 商品定价 vs 竞品对比</p>
+      <p>③ 折扣展示逻辑是否影响新客加购决策</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--accent);">
+      <h3>📌 AOV 待补充分析</h3>
+      <p>本表 AOV 环比 −1.06%（¥2,083→¥2,061），贡献 13.35% 损失，影响相对次要。</p>
+      <p>待独立数据集确认：高价 SKU 销售占比是否发生结构变化；是否存在折扣拉低实际客单价的因素。</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:24px;border-color:var(--navy);background:#eef4fa;">
+    <b>综合结论</b> — 本次 GMV 下滑是<b>以 UV 为主</b>的结构性流量问题，而非转化或客单价的系统性崩盘。Discount Campaign 跨渠道同步下滑，高度指向<b>促销机制吸引力减弱或投放效率下降</b>。CVR 的详情页→加购节点是次要变量，关乎新客体验的长期优化。建议优先调取 <b>Paid Ads Discount Campaign</b> 的素材与投放数据做专项核查，同时补充 AOV 分析数据集。
+  </div>
+</section>
+
+<div class="report-footer">
+  <span>SOURCE: D2C_MARKETING_FUNNEL_DATA.CSV · 120,000 ROWS · 17 COLS</span>
+  <span>NOTEBOOK: GMV_要生成HTML版.IPYNB · 67 CELLS PARSED</span>
+</div>
+
+</div>
+</body>
+</html>
