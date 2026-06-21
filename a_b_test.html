@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A/B 测试分析报告 · 营销活动转化漏斗</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d12;
+  --bg-raise:#11151c;
+  --bg-card:#141a22;
+  --border:#1f2733;
+  --border-soft:#19212b;
+  --text:#eef1f5;
+  --text-dim:#aab4c0;
+  --text-faint:#67707d;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter','Noto Sans SC',sans-serif;
+  --teal:#3ddc97;
+  --teal-dim:#173329;
+  --red:#ff6b6b;
+  --red-dim:#321a1a;
+  --amber:#e0b341;
+  --amber-dim:#2e2710;
+  --blue:#5b9dff;
+  --blue-dim:#13202f;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+/* ===== HERO ===== */
+.hero{
+  border-bottom:1px solid var(--border);
+  padding:72px 0 56px;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--teal) 20%,var(--blue) 50%,var(--red) 80%,transparent);
+  opacity:.5;
+}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px var(--teal-dim);}
+.hero h1{
+  font-family:var(--mono);
+  font-size:clamp(28px,4vw,44px);
+  font-weight:700;
+  line-height:1.25;
+  letter-spacing:-.01em;
+  margin-bottom:18px;
+  max-width:780px;
+}
+.hero h1 span{color:var(--text-dim);font-weight:500;}
+.hero-sub{
+  font-size:17px;
+  color:var(--text-dim);
+  max-width:680px;
+  margin-bottom:36px;
+}
+.hero-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:28px;
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--text-faint);
+}
+.hero-meta b{color:var(--text-dim);font-weight:500;}
+
+/* ===== VERDICT STRIP ===== */
+.verdict-strip{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin-top:44px;
+  border-radius:10px;
+  overflow:hidden;
+}
+.vcell{
+  background:var(--bg-card);
+  padding:18px 16px;
+  text-align:center;
+}
+.vcell .stage{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text-faint);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:10px;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.vcell .badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-family:var(--mono);
+  font-size:11.5px;
+  font-weight:600;
+  padding:4px 10px;
+  border-radius:20px;
+}
+.badge-win{background:var(--teal-dim);color:var(--teal);}
+.badge-lose{background:var(--red-dim);color:var(--red);}
+.badge-flat{background:var(--amber-dim);color:var(--amber);}
+
+/* ===== NAV (desktop sticky) ===== */
+.layout{display:grid;grid-template-columns:220px 1fr;gap:48px;padding:56px 0 100px;}
+.toc{position:sticky;top:32px;align-self:start;}
+.toc-label{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;}
+.toc a{
+  display:block;
+  font-size:13.5px;
+  color:var(--text-faint);
+  text-decoration:none;
+  padding:7px 0 7px 16px;
+  border-left:2px solid var(--border-soft);
+  margin-bottom:1px;
+  transition:color .15s,border-color .15s;
+}
+.toc a:hover{color:var(--text-dim);border-left-color:var(--text-faint);}
+.toc a.active{color:var(--text);border-left-color:var(--teal);}
+
+/* ===== MAIN CONTENT ===== */
+.main{min-width:0;}
+.section{margin-bottom:64px;padding-top:8px;}
+.section-head{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin-bottom:6px;
+  flex-wrap:wrap;
+}
+.section-num{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--text-faint);
+}
+.section h2{
+  font-family:var(--mono);
+  font-size:22px;
+  font-weight:600;
+  color:var(--text);
+}
+.section-desc{color:var(--text-dim);font-size:14.5px;margin-bottom:24px;max-width:680px;}
+
+/* generic card */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:28px;
+  margin-bottom:20px;
+}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--border-soft);}
+th{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  font-weight:500;
+}
+td{color:var(--text-dim);}
+tr:last-child td{border-bottom:none;}
+td.num,th.num{text-align:right;font-family:var(--mono);}
+.table-scroll{overflow-x:auto;}
+.table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+.table-wrap table{margin:0;}
+.table-wrap th{background:var(--bg-raise);}
+
+/* stat pills row */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:8px;}
+.stat{
+  background:var(--bg-raise);
+  border:1px solid var(--border-soft);
+  border-radius:10px;
+  padding:16px 18px;
+}
+.stat .k{font-family:var(--mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.stat .v{font-family:var(--mono);font-size:21px;font-weight:600;color:var(--text);}
+.stat .v.teal{color:var(--teal);}
+.stat .v.red{color:var(--red);}
+.stat .v.amber{color:var(--amber);}
+.stat .sub{font-size:12px;color:var(--text-faint);margin-top:4px;}
+
+/* code block */
+.code-block{
+  background:#080a0d;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  margin:16px 0 0;
+}
+.code-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:9px 16px;
+  background:var(--bg-raise);
+  border-bottom:1px solid var(--border);
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--text-faint);
+}
+.code-head .lang{color:var(--blue);}
+.code-block pre{
+  margin:0;
+  padding:16px 18px;
+  overflow-x:auto;
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  color:#c9d1d9;
+}
+.code-block code .kw{color:#ff7b72;}
+.code-block code .fn{color:#d2a8ff;}
+.code-block code .str{color:#a5d6ff;}
+.code-block code .num{color:#79c0ff;}
+.code-block code .cm{color:#67707d;font-style:italic;}
+.code-block code .op{color:#ff9bce;}
+
+/* verdict tag inline */
+.verdict-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-family:var(--mono);
+  font-weight:600;
+  font-size:13px;
+  padding:7px 14px;
+  border-radius:8px;
+  margin:18px 0 4px;
+}
+.verdict-tag .ico{font-size:14px;}
+.verdict-win{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(61,220,151,.25);}
+.verdict-lose{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,107,107,.25);}
+.verdict-flat{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(224,179,65,.25);}
+.verdict-note{color:var(--text-dim);font-size:14.5px;margin-top:10px;line-height:1.7;}
+
+/* image */
+.fig{margin:20px 0 8px;}
+.fig img{width:100%;border-radius:10px;border:1px solid var(--border);display:block;}
+.fig-cap{font-size:13px;color:var(--text-faint);margin-top:10px;}
+
+/* funnel rail */
+.funnel-rail{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:28px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+.frail-step{
+  font-family:var(--mono);
+  font-size:11.5px;
+  padding:6px 12px;
+  border-radius:20px;
+  border:1px solid var(--border-soft);
+  color:var(--text-faint);
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.frail-step.current{color:var(--text);border-color:var(--teal);background:var(--teal-dim);}
+.frail-arrow{color:var(--text-faint);flex-shrink:0;}
+
+/* summary table styling */
+.summary-table .row-win td:first-child{border-left:3px solid var(--teal);}
+.summary-table .row-lose td:first-child{border-left:3px solid var(--red);}
+.summary-table .row-flat td:first-child{border-left:3px solid var(--amber);}
+
+/* footer */
+.footer{
+  border-top:1px solid var(--border);
+  padding:36px 0 56px;
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--text-faint);
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}
+
+/* fix-note callout */
+.fix-note{
+  background:var(--blue-dim);
+  border:1px solid rgba(91,157,255,.25);
+  border-radius:10px;
+  padding:16px 18px;
+  font-size:13.5px;
+  color:var(--text-dim);
+  margin:16px 0 0;
+  display:flex;
+  gap:12px;
+}
+.fix-note .ico{color:var(--blue);font-family:var(--mono);font-weight:700;flex-shrink:0;}
+
+@media (max-width:880px){
+  .layout{grid-template-columns:1fr;}
+  .toc{display:none;}
+  .verdict-strip{grid-template-columns:repeat(2,1fr);}
+  .wrap{padding:0 20px;}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>A/B TEST · ANALYSIS REPORT</div>
+    <h1>营销活动 A/B 测试分析<br><span>转化漏斗六环节显著性检验</span></h1>
+    <p class="hero-sub">对照组（PSA / 无广告投放）与测试组（广告投放）各 30 天的营销表现数据，沿展示 → 点击 → 浏览 → 加购 → 购买的完整转化漏斗逐环节做假设检验，定位广告真正发挥作用与失效的环节。</p>
+    <div class="hero-meta">
+      <span><b>数据集</b> Marketing A/B Testing（Kaggle）</span>
+      <span><b>样本量</b> 60 行（对照组 30 / 测试组 30，1 行存在缺失已剔除）</span>
+      <span><b>检验方法</b> 双比例 Z 检验 · Welch t 检验</span>
+    </div>
+
+    <div class="verdict-strip">
+      <div class="vcell">
+        <div class="stage">点击率 CTR</div>
+        <span class="badge badge-win">广告组占优</span>
+      </div>
+      <div class="vcell">
+        <div class="stage">点击→浏览率</div>
+        <span class="badge badge-lose">广告组更差</span>
+      </div>
+      <div class="vcell">
+        <div class="stage">千次展示成本 CPM</div>
+        <span class="badge badge-lose">广告组更贵</span>
+      </div>
+      <div class="vcell">
+        <div class="stage">浏览→加购</div>
+        <span class="badge badge-lose">广告组更差</span>
+      </div>
+      <div class="vcell">
+        <div class="stage">加购→购买</div>
+        <span class="badge badge-win">广告组占优</span>
+      </div>
+      <div class="vcell">
+        <div class="stage">单次转化成本 CPA</div>
+        <span class="badge badge-flat">无显著差异</span>
+      </div>
+      <div class="vcell">
+        <div class="stage">购买转化率</div>
+        <span class="badge badge-lose">广告组更差</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+  <nav class="toc">
+    <div class="toc-label">目录</div>
+    <a href="#data-overview">01 — 数据概览</a>
+    <a href="#purchase-rate">02 — 购买转化率</a>
+    <a href="#cpa">03 — 转化成本 CPA</a>
+    <a href="#ctr">04 — 点击率 CTR</a>
+    <a href="#click-view">05 — 点击到浏览</a>
+    <a href="#cpm">06 — 流量成本 CPM</a>
+    <a href="#view-cart">07 — 浏览到加购</a>
+    <a href="#cart-purchase">08 — 加购到完成</a>
+    <a href="#summary">09 — 结论与建议</a>
+  </nav>
+
+  <main class="main">
+
+    <!-- ============ 01 数据概览 ============ -->
+    <section class="section" id="data-overview">
+      <div class="section-head"><span class="section-num">01</span><h2>数据概览</h2></div>
+      <p class="section-desc">对照组（Control Campaign）与测试组（Test Campaign）各 30 天的日级营销数据合并后共 60 行、10 列，仅 1 行（索引 4，对照组 2019-08-05）除花费外全部指标缺失，判断为投放当日无曝光产生的真实缺失，清洗时直接剔除。未发现重复行。</p>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Campaign Name</th><th>Date</th><th class="num">Spend [USD]</th><th class="num"># of Impressions</th><th class="num">Reach</th><th class="num"># of Website Clicks</th><th class="num"># of Searches</th><th class="num"># of View Content</th><th class="num"># of Add to Cart</th><th class="num"># of Purchase</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Control Campaign</td><td>1.08.2019</td><td class="num">2,280</td><td class="num">82,702</td><td class="num">56,930</td><td class="num">7,016</td><td class="num">2,290</td><td class="num">2,159</td><td class="num">1,819</td><td class="num">618</td></tr>
+            <tr><td>Test Campaign</td><td>1.08.2019</td><td class="num">3,008</td><td class="num">39,550</td><td class="num">35,820</td><td class="num">3,038</td><td class="num">1,946</td><td class="num">1,069</td><td class="num">894</td><td class="num">255</td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+      <p class="fig-cap" style="margin-bottom:24px;">首行样本对比 · 完整 60 行数据见原始 notebook</p>
+
+      <div class="stat-row">
+        <div class="stat"><div class="k">日均花费</div><div class="v">$2,426</div><div class="sub">标准差 $381</div></div>
+        <div class="stat"><div class="k">日均展示量</div><div class="v">91,776</div><div class="sub">标准差 32,465</div></div>
+        <div class="stat"><div class="k">日均触达 Reach</div><div class="v">70,869</div><div class="sub">标准差 31,024</div></div>
+        <div class="stat"><div class="k">日均点击</div><div class="v">5,683</div><div class="sub">标准差 1,755</div></div>
+        <div class="stat"><div class="k">日均浏览详情页</div><div class="v">1,900</div><div class="sub">标准差 687</div></div>
+        <div class="stat"><div class="k">日均加购</div><div class="v">1,087</div><div class="sub">标准差 430</div></div>
+        <div class="stat"><div class="k">日均购买</div><div class="v">522</div><div class="sub">标准差 197</div></div>
+      </div>
+
+      <div class="fig">
+        <img src="img/missingno_matrix.png" alt="缺失值矩阵图，显示第5行除花费外全部缺失">
+        <p class="fig-cap">缺失值矩阵：仅第 5 行（对照组）除 Spend 外全部字段缺失，其余 59 行数据完整</p>
+      </div>
+
+      <div class="fix-note">
+        <span class="ico">i</span>
+        <span>原 notebook 中本节代码已确认无误，仅做格式与配色统一，未改动任何计算逻辑。</span>
+      </div>
+    </section>
+
+    <!-- ============ 02 购买转化率 ============ -->
+    <section class="section" id="purchase-rate">
+      <div class="section-head"><span class="section-num">02</span><h2>购买转化率（点击 → 购买）</h2></div>
+      <div class="funnel-rail">
+        <span class="frail-step">展示</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">点击</span><span class="frail-arrow">→</span>
+        <span class="frail-step">浏览</span><span class="frail-arrow">→</span>
+        <span class="frail-step">加购</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">完成支付</span>
+      </div>
+      <p class="section-desc">检验广告点击之后，用户最终完成购买的比例（Purchase / Website Clicks）在两组之间是否存在统计显著差异，使用双比例 Z 检验。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组购买数</div><div class="v">15,161</div></div>
+          <div class="stat"><div class="k">对照组转化率</div><div class="v">9.83%</div></div>
+          <div class="stat"><div class="k">测试组购买数</div><div class="v">15,637</div></div>
+          <div class="stat"><div class="k">测试组转化率</div><div class="v red">8.64%</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">相对提升 Lift</div><div class="v red">−12.06%</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v" style="font-size:17px;">2.46e-32</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>fixed_cell_14.py</span><span class="lang">python</span></div>
+          <pre><code><span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportions_ztest
+
+purchase_control = df_control_clean[<span class="str">"# of Purchase"</span>].sum()
+clicks_control   = df_control_clean[<span class="str">"# of Website Clicks"</span>].sum()
+purchase_test    = df_test_clean[<span class="str">"# of Purchase"</span>].sum()
+clicks_test      = df_test_clean[<span class="str">"# of Website Clicks"</span>].sum()
+
+counts = np.array([purchase_test, purchase_control])
+nobs   = np.array([clicks_test, clicks_control])
+z_stat, p_value = proportions_ztest(counts, nobs, alternative=<span class="str">"two-sided"</span>)
+
+purchase_rate_control = purchase_control / clicks_control
+purchase_rate_test    = purchase_test / clicks_test
+lift_purchase = (purchase_rate_test - purchase_rate_control) / purchase_rate_control</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-lose"><span class="ico">✕</span>显著差异 · 广告组更差</div>
+        <p class="verdict-note">P 值远小于 0.001，差异具有统计显著性：测试组（投放广告）每次点击之后的购买转化率反而比对照组（PSA）低约 12%。说明点击进站之后，广告组用户的购买意愿或落地页体验存在劣势。</p>
+      </div>
+    </section>
+
+    <!-- ============ 03 CPA ============ -->
+    <section class="section" id="cpa">
+      <div class="section-head"><span class="section-num">03</span><h2>单次转化成本 CPA</h2></div>
+      <p class="section-desc">CPA = 花费 / 购买数，逐日计算后做 Welch t 检验（不假设方差相等），比较两组日均获客成本是否有显著差异。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组 CPA</div><div class="v">$5.05</div></div>
+          <div class="stat"><div class="k">测试组 CPA</div><div class="v">$5.90</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v">0.1946</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>fixed_cell_17.py</span><span class="lang">python</span></div>
+          <pre><code><span class="kw">import</span> scipy.stats <span class="kw">as</span> stats
+
+df_control_clean[<span class="str">"CPA"</span>] = df_control_clean[<span class="str">"Spend [USD]"</span>] / df_control_clean[<span class="str">"# of Purchase"</span>]
+df_test_clean[<span class="str">"CPA"</span>]    = df_test_clean[<span class="str">"Spend [USD]"</span>] / df_test_clean[<span class="str">"# of Purchase"</span>]
+
+cpa_A = df_control_clean[<span class="str">"CPA"</span>].replace([<span class="fn">float</span>(<span class="str">"inf"</span>), -<span class="fn">float</span>(<span class="str">"inf"</span>)], <span class="kw">None</span>).dropna()
+cpa_B = df_test_clean[<span class="str">"CPA"</span>].replace([<span class="fn">float</span>(<span class="str">"inf"</span>), -<span class="fn">float</span>(<span class="str">"inf"</span>)], <span class="kw">None</span>).dropna()
+
+t_stat, p_val = stats.ttest_ind(cpa_A, cpa_B, equal_var=<span class="kw">False</span>)</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-flat"><span class="ico">≈</span>不显著</div>
+        <p class="verdict-note">P 值 0.1946 远大于 0.05，未能拒绝两组单次转化成本相同的假设。尽管测试组均值高出约 17%，组内波动较大，不足以判定为真实成本差异。</p>
+      </div>
+    </section>
+
+    <!-- ============ 04 CTR ============ -->
+    <section class="section" id="ctr">
+      <div class="section-head"><span class="section-num">04</span><h2>点击率 CTR（展示 → 点击）</h2></div>
+      <div class="funnel-rail">
+        <span class="frail-step current">展示</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">点击</span><span class="frail-arrow">→</span>
+        <span class="frail-step">浏览</span><span class="frail-arrow">→</span>
+        <span class="frail-step">加购</span><span class="frail-arrow">→</span>
+        <span class="frail-step">完成支付</span>
+      </div>
+      <p class="section-desc">CTR = Website Clicks / Impressions，检验展示之后用户点击广告/PSA 的比例是否存在显著差异。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组总点击</div><div class="v">154,303</div></div>
+          <div class="stat"><div class="k">对照组 CTR</div><div class="v">4.86%</div></div>
+          <div class="stat"><div class="k">测试组总点击</div><div class="v">180,970</div></div>
+          <div class="stat"><div class="k">测试组 CTR</div><div class="v teal">8.09%</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">相对提升 Lift</div><div class="v teal">+66.54%</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v" style="font-size:17px;">≈ 0（趋近于0）</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>fixed_cell_20.py</span><span class="lang">python</span></div>
+          <pre><code>clicks_control      = df_control_clean[<span class="str">"# of Website Clicks"</span>].sum()
+impressions_control = df_control_clean[<span class="str">"# of Impressions"</span>].sum()
+clicks_test         = df_test_clean[<span class="str">"# of Website Clicks"</span>].sum()
+impressions_test    = df_test_clean[<span class="str">"# of Impressions"</span>].sum()
+
+counts = np.array([clicks_test, clicks_control])
+nobs   = np.array([impressions_test, impressions_control])
+z_stat, p_value = proportions_ztest(counts, nobs, alternative=<span class="str">"two-sided"</span>)
+
+ctr_control = clicks_control / impressions_control
+ctr_test    = clicks_test / impressions_test
+lift_ctr = (ctr_test - ctr_control) / ctr_control</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-win"><span class="ico">✓</span>显著差异 · 广告组占优</div>
+        <p class="verdict-note">测试组点击率比对照组高出 66.5%，P 值趋近于 0，是本次分析中最强的正向信号：广告本身对用户点击行为有明确的正向激励，吸引力显著优于 PSA。</p>
+      </div>
+    </section>
+
+    <!-- ============ 05 点击到浏览 ============ -->
+    <section class="section" id="click-view">
+      <div class="section-head"><span class="section-num">05</span><h2>转化率 —— 点击到详情页浏览</h2></div>
+      <div class="funnel-rail">
+        <span class="frail-step">展示</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">点击</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">浏览</span><span class="frail-arrow">→</span>
+        <span class="frail-step">加购</span><span class="frail-arrow">→</span>
+        <span class="frail-step">完成支付</span>
+      </div>
+      <p class="section-desc">Click_to_View_Rate = View Content / Website Clicks，衡量点击进站的用户中，有多少人真正浏览了商品详情页，使用 statsmodels 双独立比例检验（Wald 法）并给出 95% 置信区间。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组浏览率</div><div class="v">36.53%</div></div>
+          <div class="stat"><div class="k">测试组浏览率</div><div class="v red">30.80%</div></div>
+          <div class="stat"><div class="k">Z 统计值</div><div class="v">−35.01</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v">&lt; 0.0001</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">差值 95% 置信区间</div><div class="v" style="font-size:16px;">[−6.05%, −5.41%]</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>cell_click_view.py</span><span class="lang">python</span></div>
+          <pre><code>df_control = df_control_clean[df_control_clean[<span class="str">"# of Website Clicks"</span>] &gt; <span class="num">0</span>].copy()
+df_test    = df_test_clean[df_test_clean[<span class="str">"# of Website Clicks"</span>] &gt; <span class="num">0</span>].copy()
+
+view_counts = [df_control[<span class="str">"# of View Content"</span>].sum(), df_test[<span class="str">"# of View Content"</span>].sum()]
+clicks_nobs = [df_control[<span class="str">"# of Website Clicks"</span>].sum(), df_test[<span class="str">"# of Website Clicks"</span>].sum()]
+
+df_control[<span class="str">"clicks_to_view_Rate"</span>] = df_control[<span class="str">"# of View Content"</span>] / df_control[<span class="str">"# of Website Clicks"</span>]
+df_test[<span class="str">"clicks_to_view_Rate"</span>]    = df_test[<span class="str">"# of View Content"</span>] / df_test[<span class="str">"# of Website Clicks"</span>]
+
+<span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> confint_proportions_2indep, test_proportions_2indep
+
+z_score, p_value = test_proportions_2indep(
+    count1=view_counts[<span class="num">1</span>], nobs1=clicks_nobs[<span class="num">1</span>],
+    count2=view_counts[<span class="num">0</span>], nobs2=clicks_nobs[<span class="num">0</span>], method=<span class="str">"wald"</span>)
+
+ci_low, ci_upp = confint_proportions_2indep(
+    count1=view_counts[<span class="num">1</span>], nobs1=clicks_nobs[<span class="num">1</span>],
+    count2=view_counts[<span class="num">0</span>], nobs2=clicks_nobs[<span class="num">0</span>], method=<span class="str">"wald"</span>)</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-lose"><span class="ico">✕</span>显著差异 · 广告组更差</div>
+        <p class="verdict-note">测试组点击进站后真正浏览商品详情页的比例比对照组低约 5.7 个百分点，Z = −35，P 值趋近于 0，置信区间不跨零，差异稳健。说明广告带来的流量在落地之后就已经开始流失——还没到详情页这关，就有更多用户离开了。结合下一节"浏览→加购"再跌 20 个百分点来看，广告组的中段漏斗存在两处连续断层，这正是点击率赢了而整体购买转化率反而输的核心原因。</p>
+      </div>
+    </section>
+
+    <!-- ============ 06 CPM ============ -->
+    <section class="section" id="cpm">
+      <div class="section-head"><span class="section-num">06</span><h2>千次展示成本 CPM</h2></div>
+      <p class="section-desc">CPM = 花费 / 展示量 × 1000，逐日计算后做 Welch t 检验，比较获取每千次曝光的成本差异。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组 CPM</div><div class="v">$21.72</div></div>
+          <div class="stat"><div class="k">测试组 CPM</div><div class="v red">$42.68</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v">&lt; 0.0001</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>fixed_cell_23.py</span><span class="lang">python</span></div>
+          <pre><code>df_control_clean[<span class="str">"CPM"</span>] = (df_control_clean[<span class="str">"Spend [USD]"</span>] / df_control_clean[<span class="str">"# of Impressions"</span>]) * <span class="num">1000</span>
+df_test_clean[<span class="str">"CPM"</span>]    = (df_test_clean[<span class="str">"Spend [USD]"</span>] / df_test_clean[<span class="str">"# of Impressions"</span>]) * <span class="num">1000</span>
+
+cpm_A = df_control_clean[<span class="str">"CPM"</span>].replace([<span class="fn">float</span>(<span class="str">"inf"</span>), -<span class="fn">float</span>(<span class="str">"inf"</span>)], <span class="kw">None</span>).dropna()
+cpm_B = df_test_clean[<span class="str">"CPM"</span>].replace([<span class="fn">float</span>(<span class="str">"inf"</span>), -<span class="fn">float</span>(<span class="str">"inf"</span>)], <span class="kw">None</span>).dropna()
+
+t_stat, p_val = stats.ttest_ind(cpm_A, cpm_B, equal_var=<span class="kw">False</span>)</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-lose"><span class="ico">✕</span>显著差异 · 广告组更贵</div>
+        <p class="verdict-note">测试组的千次展示成本几乎是对照组的两倍，差异显著。结合 CTR 更高的结果看，广告确实更貴，但换来了更强的点击表现 —— 需要在后续环节判断这部分溢价是否物有所值。</p>
+      </div>
+    </section>
+
+    <!-- ============ 07 浏览到加购 ============ -->
+    <section class="section" id="view-cart">
+      <div class="section-head"><span class="section-num">07</span><h2>转化率 —— 详情页浏览到加购</h2></div>
+      <div class="funnel-rail">
+        <span class="frail-step">展示</span><span class="frail-arrow">→</span>
+        <span class="frail-step">点击</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">浏览</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">加购</span><span class="frail-arrow">→</span>
+        <span class="frail-step">完成支付</span>
+      </div>
+      <p class="section-desc">View_to_Cart_Rate = Add to Cart / View Content，衡量用户浏览商品详情页之后是否愿意加入购物车，使用 statsmodels 双独立比例检验（Wald 法）并给出 95% 置信区间。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组加购率</div><div class="v">66.88%</div></div>
+          <div class="stat"><div class="k">测试组加购率</div><div class="v red">47.45%</div></div>
+          <div class="stat"><div class="k">Z 统计值</div><div class="v">−67.04</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v">&lt; 0.0001</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">差值 95% 置信区间</div><div class="v" style="font-size:16px;">[−20.00%, −18.87%]</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>fixed_cell_26_27.py</span><span class="lang">python</span></div>
+          <pre><code><span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> confint_proportions_2indep, test_proportions_2indep
+
+df_control = df_control_clean[df_control_clean[<span class="str">"# of View Content"</span>] &gt; <span class="num">0</span>]
+df_test    = df_test_clean[df_test_clean[<span class="str">"# of View Content"</span>] &gt; <span class="num">0</span>]
+
+cart_counts = [df_control[<span class="str">"# of Add to Cart"</span>].sum(), df_test[<span class="str">"# of Add to Cart"</span>].sum()]
+view_nobs   = [df_control[<span class="str">"# of View Content"</span>].sum(), df_test[<span class="str">"# of View Content"</span>].sum()]
+
+df_control[<span class="str">"View_to_Cart_Rate"</span>] = df_control[<span class="str">"# of Add to Cart"</span>] / df_control[<span class="str">"# of View Content"</span>]
+df_test[<span class="str">"View_to_Cart_Rate"</span>]    = df_test[<span class="str">"# of Add to Cart"</span>] / df_test[<span class="str">"# of View Content"</span>]
+
+z_score, p_value = test_proportions_2indep(
+    count1=cart_counts[1], nobs1=view_nobs[1],
+    count2=cart_counts[0], nobs2=view_nobs[0], method=<span class="str">"wald"</span>)
+
+ci_low, ci_upp = confint_proportions_2indep(
+    count1=cart_counts[1], nobs1=view_nobs[1],
+    count2=cart_counts[0], nobs2=view_nobs[0], method=<span class="str">"wald"</span>)</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-lose"><span class="ico">✕</span>显著差异 · 广告组更差</div>
+        <p class="verdict-note">测试组用户浏览商品后加入购物车的比例比对照组低近 20 个百分点，置信区间不跨越 0，差异稳健。说明广告带来的流量在"浏览详情页"之后的购物意愿明显更弱，落地页或商品匹配度可能是关键瓶颈。</p>
+      </div>
+    </section>
+
+    <!-- ============ 08 加购到完成 ============ -->
+    <section class="section" id="cart-purchase">
+      <div class="section-head"><span class="section-num">08</span><h2>转化率 —— 加购到完成支付</h2></div>
+      <div class="funnel-rail">
+        <span class="frail-step">展示</span><span class="frail-arrow">→</span>
+        <span class="frail-step">点击</span><span class="frail-arrow">→</span>
+        <span class="frail-step">浏览</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">加购</span><span class="frail-arrow">→</span>
+        <span class="frail-step current">完成支付</span>
+      </div>
+      <p class="section-desc">Cart_to_Purchase_Rate = Purchase / Add to Cart，衡量已加购用户最终完成支付的比例，同样使用双独立比例检验。</p>
+
+      <div class="card">
+        <div class="stat-row">
+          <div class="stat"><div class="k">对照组完成率</div><div class="v">40.21%</div></div>
+          <div class="stat"><div class="k">测试组完成率</div><div class="v teal">59.13%</div></div>
+          <div class="stat"><div class="k">Z 统计值</div><div class="v">48.02</div></div>
+          <div class="stat"><div class="k">P 值</div><div class="v">&lt; 0.0001</div></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">差值 95% 置信区间</div><div class="v" style="font-size:16px;">[18.14%, 19.69%]</div></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-head"><span>fixed_cell_30_31.py</span><span class="lang">python</span></div>
+          <pre><code>df_control_final = df_control[df_control[<span class="str">"# of Add to Cart"</span>] &gt; <span class="num">0</span>]
+df_test_final    = df_test[df_test[<span class="str">"# of Add to Cart"</span>] &gt; <span class="num">0</span>]
+
+purchase_counts = [df_control_final[<span class="str">"# of Purchase"</span>].sum(), df_test_final[<span class="str">"# of Purchase"</span>].sum()]
+cart_nobs       = [df_control_final[<span class="str">"# of Add to Cart"</span>].sum(), df_test_final[<span class="str">"# of Add to Cart"</span>].sum()]
+
+df_control_final[<span class="str">"Cart_to_Purchase_Rate"</span>] = df_control_final[<span class="str">"# of Purchase"</span>] / df_control_final[<span class="str">"# of Add to Cart"</span>]
+df_test_final[<span class="str">"Cart_to_Purchase_Rate"</span>]    = df_test_final[<span class="str">"# of Purchase"</span>] / df_test_final[<span class="str">"# of Add to Cart"</span>]
+
+z_score, p_value = test_proportions_2indep(
+    count1=purchase_counts[1], nobs1=cart_nobs[1],
+    count2=purchase_counts[0], nobs2=cart_nobs[0], method=<span class="str">"wald"</span>)</code></pre>
+        </div>
+
+        <div class="verdict-tag verdict-win"><span class="ico">✓</span>显著差异 · 广告组占优</div>
+        <p class="verdict-note">一旦用户完成加购，测试组的支付完成率反而比对照组高出约 19 个百分点，置信区间稳健不跨零。说明广告组真正的购物车用户购买意愿很强，结账环节没有问题。</p>
+      </div>
+    </section>
+
+    <!-- ============ 09 结论 ============ -->
+    <section class="section" id="summary">
+      <div class="section-head"><span class="section-num">09</span><h2>结论与建议</h2></div>
+      <p class="section-desc">将六项检验结果按转化漏斗顺序汇总：广告组在漏斗两端都占优，唯独中段断崖式下跌，这正是解释"点击率涨 66%、最终购买转化率反而跌"这一看似矛盾结果的关键。</p>
+
+      <div class="table-wrap summary-table">
+        <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>漏斗环节</th><th>对照组</th><th>测试组</th><th>裁决</th><th>业务含义</th>
+          </tr></thead>
+          <tbody>
+            <tr class="row-win">
+              <td>点击率 CTR</td><td class="num">4.86%</td><td class="num">8.09%</td>
+              <td><span class="badge badge-win">广告占优</span></td>
+              <td>广告素材吸引力显著强于 PSA</td>
+            </tr>
+            <tr class="row-lose">
+              <td>点击 → 浏览</td><td class="num">36.53%</td><td class="num">30.80%</td>
+              <td><span class="badge badge-lose">广告更差</span></td>
+              <td>进站后流失第一处，落地页留存弱</td>
+            </tr>
+            <tr class="row-lose">
+              <td>千次展示成本 CPM</td><td class="num">$21.72</td><td class="num">$42.68</td>
+              <td><span class="badge badge-lose">广告更贵</span></td>
+              <td>获取展示的成本接近两倍</td>
+            </tr>
+            <tr class="row-lose">
+              <td>浏览 → 加购</td><td class="num">66.88%</td><td class="num">47.45%</td>
+              <td><span class="badge badge-lose">广告更差</span></td>
+              <td>流量质量与落地页不匹配，最大瓶颈</td>
+            </tr>
+            <tr class="row-win">
+              <td>加购 → 完成支付</td><td class="num">40.21%</td><td class="num">59.13%</td>
+              <td><span class="badge badge-win">广告占优</span></td>
+              <td>真实购物意图用户的结账体验良好</td>
+            </tr>
+            <tr class="row-flat">
+              <td>单次转化成本 CPA</td><td class="num">$5.05</td><td class="num">$5.90</td>
+              <td><span class="badge badge-flat">无显著差异</span></td>
+              <td>整体获客成本未被证实拉高</td>
+            </tr>
+            <tr class="row-lose">
+              <td>购买转化率（点击→购买）</td><td class="num">9.83%</td><td class="num">8.64%</td>
+              <td><span class="badge badge-lose">广告更差</span></td>
+              <td>点击之后的整体转化弱于 PSA</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-family:var(--mono);font-size:15px;margin-bottom:14px;color:var(--text);">为什么点击率赢了，购买转化率却输了</h3>
+        <p class="verdict-note" style="margin-top:0;">把漏斗拆开看，矛盾就消失了：广告组的点击率比对照组高 66.5%，说明广告素材本身在吸引点击这件事上是成功的；用户一旦完成加购，广告组的支付完成率也比对照组高出 19 个百分点，说明结账环节、支付体验、价格本身都没有问题。问题出现在中段的两处连续断层：第一处，点击进站后能浏览到商品详情页的比例，广告组比对照组低 5.7 个百分点（30.80% vs 36.53%），说明更多广告用户在落地页就已经离开，甚至还没看到商品；第二处，浏览详情页之后是否愿意加购，广告组比对照组再低 20 个百分点（47.45% vs 66.88%），是整条漏斗里差距最大的环节。两处叠加，中段的流量质量劣势彻底抵消了两端的优势，最终拉低了整体购买转化率。</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-family:var(--mono);font-size:15px;margin-bottom:14px;color:var(--text);">广告溢价是否值得</h3>
+        <p class="verdict-note" style="margin-top:0;">千次展示成本从 $21.72 涨到 $42.68，多花了近一倍的钱买展示。但综合 CPA 看，两组单次转化成本的差异（$5.05 对 $5.90）在统计上并不显著——也就是说，尽管展示更贵，最终平摊到每个成交用户身上的成本并没有被证实真的更高，CTR 的大幅提升在一定程度上抵消了 CPM 的涨幅。换句话说，钱花得更贵这件事本身不是问题，真正的问题是中段那 20 个百分点的流失：如果能把"浏览到加购"的转化率从 47% 拉回到接近对照组的水平，在点击量已经更大的基础上，最终的购买体量和单位经济性都会同步改善，而不需要先去纠结展示成本涨了多少。</p>
+      </div>
+
+      <div class="card">
+        <h3 style="font-family:var(--mono);font-size:15px;margin-bottom:14px;color:var(--text);">行动建议</h3>
+        <p class="verdict-note" style="margin-top:0;">不建议简单削减广告投放或归因于广告本身无效——广告在拉点击和促成交这两端的能力都得到了数据验证。优先级最高的动作是排查广告引流落地页与广告素材承诺的一致性：用户因为广告内容点击进来，看到的商品详情页是否兑现了广告里暗示的价格、卖点或场景，错配是浏览后不加购最常见的原因。其次可以分人群、分广告创意拆解加购率，确认流失是集中在某几条素材还是全面性的，便于判断是该优化素材精准度还是该优化落地页本身。CPM 的上涨暂不需要单独处理，等中段转化修复后再评估投放规模是否需要调整。</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:12px;">
+    <span>数据来源：Marketing A/B Testing Dataset · Kaggle</span>
+    <span>显著性水平 α = 0.05</span>
+  </div>
+</footer>
+
+<script>
+const links = document.querySelectorAll('.toc a');
+const sections = document.querySelectorAll('.section');
+const obs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const id = e.target.id;
+      const match = document.querySelector('.toc a[href="#'+id+'"]');
+      if(match) match.classList.add('active');
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+
+</body>
+</html>
