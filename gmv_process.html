@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMV 下滑归因分析</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --border: #d4dce6;
+  --ink: #1a1a1a;
+  --mid: #4a4a4a;
+  --muted: #7a8a9a;
+  --accent: #1a4480;
+  --accent-light: #e8f0fe;
+  --accent-mid: #2d6ab4;
+  --warn: #92400e;
+  --warn-light: #fef3c7;
+  --code-bg: #1e1e2e;
+  --code-surface: #2a2a3e;
+}
+
+body {
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── Hero ── */
+.hero {
+  background: var(--accent);
+  padding: 56px 0 48px;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  margin-bottom: 28px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+}
+.back-link:hover { color: rgba(255,255,255,0.8); }
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+
+.hero-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 28px;
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+.meta-value {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+
+/* ── Page layout ── */
+.page-body {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 40px;
+  min-height: 80vh;
+}
+
+/* ── Nav sidebar ── */
+.sidebar {
+  padding: 40px 20px 40px 0;
+  position: sticky;
+  top: 24px;
+  align-self: start;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-list a {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+
+.nav-list a:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.nav-list a.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Main content ── */
+.main {
+  padding: 40px 0 80px 28px;
+  border-left: 1px solid var(--border);
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* ── Section blocks ── */
+.analysis-section {
+  margin-bottom: 56px;
+}
+
+.section-anchor {
+  display: block;
+  height: 0;
+  margin-top: -16px;
+  padding-top: 16px;
+  visibility: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 13.5px;
+  color: var(--mid);
+  line-height: 1.8;
+}
+
+.card p + p {
+  margin-top: 10px;
+}
+
+/* ── Finding highlight ── */
+.finding {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 14px;
+}
+
+.finding-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.finding p {
+  font-size: 13.5px;
+  color: var(--mid);
+  line-height: 1.75;
+}
+
+.finding strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Pitfall block ── */
+.pitfall {
+  background: var(--warn-light);
+  border-left: 3px solid #d97706;
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 14px;
+}
+
+.pitfall-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-bottom: 6px;
+}
+
+.pitfall p {
+  font-size: 13.5px;
+  color: #78350f;
+  line-height: 1.75;
+}
+
+.pitfall strong {
+  color: var(--warn);
+}
+
+/* ── Code blocks ── */
+.code-block-wrapper {
+  margin-bottom: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #3a3a52;
+}
+
+.code-block-header {
+  background: var(--code-surface);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.code-block-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #a0a0c0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.copy-btn {
+  font-size: 10.5px;
+  color: #6060a0;
+  background: none;
+  border: 1px solid #3a3a52;
+  border-radius: 4px;
+  padding: 3px 9px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+.copy-btn:hover {
+  color: #a0a0c0;
+  border-color: #6060a0;
+}
+
+.code-block-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-btn {
+  font-size: 10.5px;
+  color: #6060a0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+}
+.toggle-btn:hover { color: #a0a0c0; }
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.toggle-icon.collapsed { transform: rotate(-90deg); }
+
+pre.code-content {
+  background: var(--code-bg);
+  margin: 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  transition: max-height 0.3s ease, opacity 0.2s;
+  max-height: 1200px;
+}
+
+pre.code-content.collapsed {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  opacity: 0;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+/* Syntax highlighting */
+.kw { color: #cba6f7; }
+.fn { color: #89b4fa; }
+.st { color: #a6e3a1; }
+.cm { color: #6c7086; font-style: italic; }
+.num { color: #fab387; }
+.var { color: #cdd6f4; }
+.op { color: #89dceb; }
+.dec { color: #f38ba8; }
+
+/* ── Misc ── */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 40px 0;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.tag {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+footer {
+  text-align: center;
+  padding: 28px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+@media (max-width: 700px) {
+  .page-body { grid-template-columns: 1fr; padding: 0 20px; }
+  .sidebar { display: none; }
+  .main { padding: 32px 0; border-left: none; }
+  .hero { padding: 40px 0 36px; }
+  .hero-title { font-size: 24px; }
+  .container { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="container">
+    <a class="back-link" href="index.html">← 返回作品集</a>
+    <div class="hero-eyebrow">项目 01 · GMV 归因</div>
+    <div class="hero-title">GMV 下滑归因分析</div>
+    <div class="hero-sub">
+      某 D2C 品牌 11–12 月 GMV 环比下滑，通过连锁替代法拆解三因子，下钻至渠道 × 活动 × 用户类型维度定位根因。
+    </div>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">数据规模</span>
+        <span class="meta-value">D2C 漏斗数据 · 12 万行</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">核心方法</span>
+        <span class="meta-value">连锁替代法 · 漏斗拆解</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">工具</span>
+        <span class="meta-value">Python · Pandas</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Body ── -->
+<div class="page-body">
+
+  <!-- Sidebar nav -->
+  <nav class="sidebar">
+    <div class="nav-label">分析目录</div>
+    <ul class="nav-list">
+      <li><a href="#s1">01 · 问题定义</a></li>
+      <li><a href="#s2">02 · 连锁替代法拆解</a></li>
+      <li><a href="#s3">03 · UV 用户分类</a></li>
+      <li><a href="#s4">04 · UV 渠道归因</a></li>
+      <li><a href="#s5">05 · CVR 漏斗分析</a></li>
+      <li><a href="#s6">06 · 综合结论</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- ── S1 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s1"></span>
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">问题定义</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">要回答的问题</div>
+        <p>某 D2C 品牌 2025 年 11 月至 12 月 GMV 出现环比下滑。作为分析师，需要回答：<strong>下滑的量有多少，是什么导致的，是流量问题、转化问题，还是客单价问题？</strong></p>
+        <p>光知道"GMV 掉了"对业务没有价值。需要把下滑量分解到可操作的因子上——产品团队能接着看转化率，运营团队能接着看渠道，这套分析才有用。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">数据情况</div>
+        <p>原始数据是用户行为日志，每一行是一个用户在某个时间点的一次访问记录，包含渠道、活动类型、漏斗各阶段状态（是否访问首页、是否查看商品、是否加购、是否结算、是否完成支付）以及订单金额。</p>
+        <p>同一个用户可能在同月内有多条记录。这个特性后续在计算 UV 时需要特别处理。</p>
+      </div>
+
+      <div class="tag-row">
+        <span class="tag">GMV = UV × CVR × AOV</span>
+        <span class="tag">连锁替代法</span>
+        <span class="tag">D2C 电商漏斗</span>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S2 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s2"></span>
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">连锁替代法拆解三因子</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">为什么用连锁替代法</div>
+        <p>GMV = UV × CVR × AOV，三个因子在两个月之间都发生了变化，我需要量化每个因子单独贡献了多少下滑。</p>
+        <p>最直觉的做法是算每个因子自己的变化率，但这忽略了因子之间的交叉项（即因子 A 变化的同时 B 也在变，两者的乘积部分归给谁？）。<strong>连锁替代法</strong>的做法是：每次只替换一个因子，其余保持基期值不变，通过前后差额剥离出每个因子的纯贡献，交叉项被顺序分摊进去。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · UV 算成了行为点击数</div>
+        <p>最初我在计算 UV 时，直接使用了 <code>count()</code> 来统计行数。但原始数据中同一用户在同一个月可能有多行记录（不同渠道进来、不同日期访问），这导致 UV 实际统计的是<strong>行为点击次数而非用户人数</strong>，严重虚高。</p>
+        <p>修正方法是改用 <code>nunique()</code> 对 user_id 做去重计数，并且在计算各漏斗步骤的 UV 时，先 groupby user_id 取各步骤的 max（即只要该用户这个月有过一次该行为就算完成），再 sum 得到人头数。</p>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">分析结论</div>
+        <p><strong>UV 流量下滑贡献了 GMV 降幅的 123%</strong>，即使 CVR 和 AOV 都轻微正向，也完全无法对冲流量的流失。问题的根本在流量侧，而非转化侧或客单价侧。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">chain_substitution.py · 连锁替代法核心逻辑</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)">
+              <span class="toggle-icon">▾</span> 收起
+            </button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="cm"># 提取 11 月（基期）和 12 月（目标期）的整行指标数据</span>
+<span class="var">nov</span> <span class="op">=</span> <span class="var">monthly_analysis</span>[<span class="var">monthly_analysis</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="st">'2025-11'</span>].<span class="fn">iloc</span>[<span class="num">0</span>]
+<span class="var">dec</span> <span class="op">=</span> <span class="var">monthly_analysis</span>[<span class="var">monthly_analysis</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="st">'2025-12'</span>].<span class="fn">iloc</span>[<span class="num">0</span>]
+
+<span class="cm"># GMV 实际总变动量（分母）</span>
+<span class="var">total_gmv_change</span> <span class="op">=</span> <span class="var">dec</span>[<span class="st">'gmv'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'gmv'</span>]
+
+<span class="cm"># 连锁替代法：每次只换一个因子，其余保持基期值</span>
+<span class="cm"># 因子 A（UV）：UV 变，CVR/AOV 用 11 月值</span>
+<span class="var">uv_effect</span>  <span class="op">=</span> (<span class="var">dec</span>[<span class="st">'uv'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'uv'</span>]) <span class="op">*</span> <span class="var">nov</span>[<span class="st">'crv'</span>] <span class="op">*</span> <span class="var">nov</span>[<span class="st">'aov'</span>]
+
+<span class="cm"># 因子 B（CVR）：UV 已用 12 月值，CVR 变，AOV 仍用 11 月值</span>
+<span class="var">crv_effect</span> <span class="op">=</span> <span class="var">dec</span>[<span class="st">'uv'</span>] <span class="op">*</span> (<span class="var">dec</span>[<span class="st">'crv'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'crv'</span>]) <span class="op">*</span> <span class="var">nov</span>[<span class="st">'aov'</span>]
+
+<span class="cm"># 因子 C（AOV）：UV/CVR 都用 12 月值，只有 AOV 在变</span>
+<span class="var">aov_effect</span> <span class="op">=</span> <span class="var">dec</span>[<span class="st">'uv'</span>] <span class="op">*</span> <span class="var">dec</span>[<span class="st">'crv'</span>] <span class="op">*</span> (<span class="var">dec</span>[<span class="st">'aov'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'aov'</span>])
+
+<span class="cm"># 各因子贡献率（三者相加应等于 100%）</span>
+<span class="var">uv_contribution</span>  <span class="op">=</span> <span class="var">uv_effect</span>  <span class="op">/</span> <span class="var">total_gmv_change</span>
+<span class="var">crv_contribution</span> <span class="op">=</span> <span class="var">crv_effect</span> <span class="op">/</span> <span class="var">total_gmv_change</span>
+<span class="var">aov_contribution</span> <span class="op">=</span> <span class="var">aov_effect</span> <span class="op">/</span> <span class="var">total_gmv_change</span></code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S3 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s3"></span>
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">UV 深挖：用户类型拆解</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">为什么要拆用户类型</div>
+        <p>UV 整体下滑，但"哪类用户少了"决定后续要采取什么动作。新客流失和留存客户流失的对策完全不同：前者看获客渠道，后者看复购和召回。</p>
+        <p>我把每个月的活跃用户分成三类：<strong>新客户</strong>（历史从未出现过）、<strong>留存客户</strong>（上个月也来了）、<strong>唤醒客户</strong>（上上个月或更早来过，上个月没来）。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 数据穿越（Look-ahead bias）</div>
+        <p>最初的写法是直接用全量数据判断某用户"是否曾经来过"，这在当前场景看上去没问题，但如果换一个没有按时间排好的写法，或者后续扩展到滚动窗口时，很容易用到"未来"数据给用户打标签，把本来是新客户的人错误判断为老客户。</p>
+        <p>我的解决方案是在函数内部<strong>先对 df 切片</strong>，只保留 target_month 及更早的记录，再在这个切片内判断用户身份——从根本上切断了未来数据的干扰，函数逻辑可以复用到任意月份而不出错。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 渠道归因下的新客人数膨胀</div>
+        <p>在做"新客户 × 渠道"交叉分析时，我发现渠道维度加总的新客人数比 UV 层的新客人数多。排查后发现：同一个新客用户当月可能从多个渠道进来，在渠道维度就会被计入多次。</p>
+        <p>这个现象本身是合理的——用户可以多渠道触达。但要注意的是：<strong>渠道维度的数字用于分析各渠道的相对贡献，而不能用于验证新客总人数</strong>。我在报告中说明了这一点，避免后续读者产生疑惑。</p>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">分析结论</div>
+        <p>12 月 UV 下滑中，<strong>新客户流失是主要来源</strong>。留存客户和唤醒客户数量变化相对有限。这把问题锁定在获客侧，而不是存量用户的留存能力。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">user_tagging.py · 防数据穿越的用户分类</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)">
+              <span class="toggle-icon">▾</span> 收起
+            </button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="kw">def</span> <span class="fn">get_monthly_customer_tags</span>(<span class="var">df</span>, <span class="var">target_month</span>, <span class="var">last_month</span>):
+    <span class="st">"""严格隔离未来数据，只基于历史判定用户身份"""</span>
+    <span class="cm"># ① 切断未来数据</span>
+    <span class="var">history_df</span> <span class="op">=</span> <span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">&lt;=</span> <span class="var">target_month</span>]
+
+    <span class="var">target_users</span>     <span class="op">=</span> <span class="fn">set</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">==</span> <span class="var">target_month</span>][<span class="st">"user_id"</span>])
+    <span class="var">last_month_users</span>  <span class="op">=</span> <span class="fn">set</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">==</span> <span class="var">last_month</span>][<span class="st">"user_id"</span>])
+    <span class="var">before_last_users</span> <span class="op">=</span> <span class="fn">set</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">&lt;</span> <span class="var">last_month</span>][<span class="st">"user_id"</span>])
+
+    <span class="var">res_list</span> <span class="op">=</span> []
+    <span class="kw">for</span> <span class="var">uid</span> <span class="kw">in</span> <span class="var">target_users</span>:
+        <span class="kw">if</span> <span class="var">uid</span> <span class="kw">not in</span> <span class="var">last_month_users</span> <span class="kw">and</span> <span class="var">uid</span> <span class="kw">not in</span> <span class="var">before_last_users</span>:
+            <span class="var">tag</span> <span class="op">=</span> <span class="st">"新客户"</span>
+        <span class="kw">elif</span> <span class="var">uid</span> <span class="kw">in</span> <span class="var">last_month_users</span>:
+            <span class="var">tag</span> <span class="op">=</span> <span class="st">"留存客户"</span>
+        <span class="kw">else</span>:
+            <span class="var">tag</span> <span class="op">=</span> <span class="st">"唤醒客户"</span>
+        <span class="var">res_list</span>.<span class="fn">append</span>({
+            <span class="st">"month"</span>: <span class="var">target_month</span>,
+            <span class="st">"user_id"</span>: <span class="var">uid</span>,
+            <span class="st">"customer_type"</span>: <span class="var">tag</span>
+        })
+    <span class="kw">return</span> <span class="var">pd</span>.<span class="fn">DataFrame</span>(<span class="var">res_list</span>)</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S4 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s4"></span>
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">UV 深挖：渠道 × 活动类型归因</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">分析思路</div>
+        <p>确认新客户流失是主因后，下一个问题是：<strong>从哪个渠道来的新客户减少了？哪个具体的活动类型（campaign_type）贡献了最大的下滑？</strong></p>
+        <p>先锁定"新客户"群体（用 inner join 把用户标签表接回行为主表），再在这个子集内做渠道维度的透视，然后再往下钻一层到 channel × campaign_type 的二维交叉。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 下钻逻辑的一致性</div>
+        <p>渠道层的分析用的是"新客户"子集。下钻到 campaign 层时，需要保持同样的子集范围，即仍然只看新客户，而不是全量用户。如果不注意这一点，campaign 层的数字就会比渠道层膨胀，两层之间无法对齐。</p>
+        <p>解决方式是：campaign 分析沿用同一张 <code>df_all_new</code>（已 inner join 过用户标签、仅保留新客），直接在这张表上做 pivot，不再引入新的 df 过滤逻辑。</p>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">分析结论</div>
+        <p>新客户下滑从严重到轻排序：<strong>Paid Ads → Organic → Social → Email</strong>。下钻到活动类型后，<strong>Paid Ads × Discount Campaign</strong> 是最大的单一下滑来源，推测原因包括：促销吸引力下降、预算不足、广告素材效率下降（CTR/CPC 维度可进一步验证）。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">channel_attribution.py · 渠道×活动透视</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)">
+              <span class="toggle-icon">▾</span> 收起
+            </button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="cm"># 锁定新客子集（inner join 保持口径一致）</span>
+<span class="var">df_new_11</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">merge</span>(
+    <span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="st">'2025-11'</span>],
+    <span class="var">tags_11</span>[<span class="var">tags_11</span>[<span class="st">'customer_type'</span>] <span class="op">==</span> <span class="st">'新客户'</span>],
+    <span class="var">on</span><span class="op">=</span>[<span class="st">'user_id'</span>, <span class="st">'month'</span>], <span class="var">how</span><span class="op">=</span><span class="st">'inner'</span>)
+<span class="var">df_new_12</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">merge</span>(
+    <span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="st">'2025-12'</span>],
+    <span class="var">tags_12</span>[<span class="var">tags_12</span>[<span class="st">'customer_type'</span>] <span class="op">==</span> <span class="st">'新客户'</span>],
+    <span class="var">on</span><span class="op">=</span>[<span class="st">'user_id'</span>, <span class="st">'month'</span>], <span class="var">how</span><span class="op">=</span><span class="st">'inner'</span>)
+<span class="var">df_all_new</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">concat</span>([<span class="var">df_new_11</span>, <span class="var">df_new_12</span>])
+
+<span class="cm"># 下钻到 channel × campaign_type（复用同一张表）</span>
+<span class="var">pivot_joint</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">pivot_table</span>(
+    <span class="var">df_all_new</span>,
+    <span class="var">index</span><span class="op">=</span>[<span class="st">'channel'</span>, <span class="st">'campaign_type'</span>],
+    <span class="var">columns</span><span class="op">=</span><span class="st">'month'</span>,
+    <span class="var">values</span><span class="op">=</span><span class="st">'user_id'</span>,
+    <span class="var">aggfunc</span><span class="op">=</span><span class="st">'nunique'</span>,
+    <span class="var">fill_value</span><span class="op">=</span><span class="num">0</span>)
+<span class="var">pivot_joint</span>[<span class="st">'diff'</span>] <span class="op">=</span> <span class="var">pivot_joint</span>[<span class="st">'2025-12'</span>] <span class="op">-</span> <span class="var">pivot_joint</span>[<span class="st">'2025-11'</span>]
+<span class="var">pivot_joint</span>.<span class="fn">sort_values</span>(<span class="st">'diff'</span>, <span class="var">ascending</span><span class="op">=</span><span class="kw">True</span>)</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S5 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s5"></span>
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">CVR 漏斗分析</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">为什么继续看 CVR</div>
+        <p>连锁替代法显示 CVR 的贡献不是主因，但并不意味着 CVR 没有问题——它可能在某些环节、某些用户群体上有显著恶化，只是被整体数字平均掉了。</p>
+        <p>漏斗分 5 个步骤：首页访问 → 详情页访问 → 加购 → 开始结算 → 完成支付。我在整体对比的基础上，进一步拆解了每个环节对总 CVR 变动的贡献，并按用户类型做了切片分析。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 漏斗各步骤的去重逻辑</div>
+        <p>漏斗数据中，每一步的标记是 True/False。由于同一用户有多条记录，不能直接 sum，否则一个用户多次到达同一步骤会被重复计入。</p>
+        <p>正确做法：先 <code>groupby('user_id')</code> 对各步骤列取 <code>max()</code>，得到"这个用户这个月是否曾经到达过该步骤"，再 <code>sum()</code> 算人头。每个用户在每个步骤只计一次。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 体量加权的必要性</div>
+        <p>在按用户类型切片分析环节贡献时，需要额外考虑<strong>体量加权</strong>：同样转化率下降 5 个百分点，如果新客户人数是留存客户的三倍，新客户的拖累就会三倍于留存客户。所以用"各客群在环节入口的平均体量占比"作为权重，才能得到对大盘的真实影响量。</p>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">分析结论</div>
+        <p>CVR 下滑主要集中在 <strong>2→3 环节（详情页→加购）</strong>，新客户是主要拖累来源。推测方向：商品吸引力、价格竞争力、详情页体验（停留时长、跳出率）。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">cvr_funnel.py · 漏斗去重+环节贡献拆解</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)">
+              <span class="toggle-icon">▾</span> 收起
+            </button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="kw">def</span> <span class="fn">get_monthly_funnel_rates</span>(<span class="var">df</span>, <span class="var">month_str</span>):
+    <span class="st">"""返回某月各漏斗环节的去重转化率"""</span>
+    <span class="var">m_df</span> <span class="op">=</span> <span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="var">month_str</span>].<span class="fn">copy</span>()
+    <span class="var">cols</span> <span class="op">=</span> [<span class="st">'visited_website'</span>, <span class="st">'viewed_product'</span>,
+            <span class="st">'added_to_cart'</span>, <span class="st">'checkout_started'</span>,
+            <span class="st">'purchase_completed'</span>]
+    <span class="var">m_df</span>[<span class="var">cols</span>] <span class="op">=</span> <span class="var">m_df</span>[<span class="var">cols</span>].<span class="fn">astype</span>(<span class="fn">int</span>)
+
+    <span class="cm"># 关键去重：groupby → max → sum</span>
+    <span class="var">dedup</span> <span class="op">=</span> <span class="var">m_df</span>.<span class="fn">groupby</span>(<span class="st">'user_id'</span>)[<span class="var">cols</span>].<span class="fn">max</span>()
+    <span class="var">s1</span>,<span class="var">s2</span>,<span class="var">s3</span>,<span class="var">s4</span>,<span class="var">s5</span> <span class="op">=</span> [<span class="var">dedup</span>[<span class="var">c</span>].<span class="fn">sum</span>() <span class="kw">for</span> <span class="var">c</span> <span class="kw">in</span> <span class="var">cols</span>]
+    <span class="kw">return</span> {
+        <span class="st">'r1'</span>:<span class="var">s2</span><span class="op">/</span><span class="var">s1</span>, <span class="st">'r2'</span>:<span class="var">s3</span><span class="op">/</span><span class="var">s2</span>,
+        <span class="st">'r3'</span>:<span class="var">s4</span><span class="op">/</span><span class="var">s3</span>, <span class="st">'r4'</span>:<span class="var">s5</span><span class="op">/</span><span class="var">s4</span>,
+        <span class="st">'overall'</span>: <span class="var">s5</span><span class="op">/</span><span class="var">s1</span>}
+
+<span class="var">base</span>   <span class="op">=</span> <span class="fn">get_monthly_funnel_rates</span>(<span class="var">df</span>, <span class="st">'2025-11'</span>)
+<span class="var">target</span> <span class="op">=</span> <span class="fn">get_monthly_funnel_rates</span>(<span class="var">df</span>, <span class="st">'2025-12'</span>)
+
+<span class="cm"># 连锁替代：逐步替换各环节</span>
+<span class="var">c1</span> <span class="op">=</span> (<span class="var">target</span>[<span class="st">'r1'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r2'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r3'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r4'</span>]) <span class="op">-</span> <span class="var">base</span>[<span class="st">'overall'</span>]
+<span class="var">c2</span> <span class="op">=</span> (<span class="var">target</span>[<span class="st">'r1'</span>]<span class="op">*</span><span class="var">target</span>[<span class="st">'r2'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r3'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r4'</span>]) \
+   <span class="op">-</span> (<span class="var">target</span>[<span class="st">'r1'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r2'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r3'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r4'</span>])
+<span class="var">c3</span> <span class="op">=</span> (<span class="var">target</span>[<span class="st">'r1'</span>]<span class="op">*</span><span class="var">target</span>[<span class="st">'r2'</span>]<span class="op">*</span><span class="var">target</span>[<span class="st">'r3'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r4'</span>]) \
+   <span class="op">-</span> (<span class="var">target</span>[<span class="st">'r1'</span>]<span class="op">*</span><span class="var">target</span>[<span class="st">'r2'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r3'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r4'</span>])
+<span class="var">c4</span> <span class="op">=</span> <span class="var">target</span>[<span class="st">'overall'</span>] \
+   <span class="op">-</span> (<span class="var">target</span>[<span class="st">'r1'</span>]<span class="op">*</span><span class="var">target</span>[<span class="st">'r2'</span>]<span class="op">*</span><span class="var">target</span>[<span class="st">'r3'</span>]<span class="op">*</span><span class="var">base</span>[<span class="st">'r4'</span>])</code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S6 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s6"></span>
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">综合结论与后续验证方向</span>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">根因链</div>
+        <p>GMV 下滑 → <strong>UV 流量是主因（贡献 123%）</strong> → 流量里新客户流失最严重 → 新客户主要从 <strong>Paid Ads 渠道</strong>进来 → 具体是 <strong>Discount Campaign</strong> 活动的新客获取量大幅下滑。</p>
+        <p>CVR 下滑是次要问题，集中在 <strong>详情页→加购</strong> 环节，同样以新客户为主。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">后续可验证的假设</div>
+        <p><strong>Paid Ads 侧：</strong>促销力度下降（折扣幅度、SKU 数量）、投放预算不足、广告素材效率下降——可通过 CTR、CPC、曝光量等广告投放数据验证。</p>
+        <p><strong>CVR 侧：</strong>商品价格竞争力、详情页内容质量、页面加载速度——可通过页面停留时长、跳出率、价格对比行为数据验证。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">分析边界说明</div>
+        <p>本分析基于用户行为漏斗数据，没有接入广告投放数据（曝光/点击/CTR/CPC）和页面体验数据（停留时长/跳出率），因此结论停留在"指出方向"层面，无法直接量化广告效率恶化的具体程度。上述验证方向需要补充对应数据源才能推进。</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  数据分析作品集 · <a href="index.html" style="color:var(--muted);">返回首页</a>
+</footer>
+
+<script>
+function toggleCode(btn) {
+  const wrapper = btn.closest('.code-block-wrapper');
+  const pre = wrapper.querySelector('pre.code-content');
+  const icon = btn.querySelector('.toggle-icon');
+  const isCollapsed = pre.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed', isCollapsed);
+  btn.lastChild.textContent = isCollapsed ? ' 展开' : ' 收起';
+}
+
+function copyCode(btn) {
+  const wrapper = btn.closest('.code-block-wrapper');
+  const code = wrapper.querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = '已复制 ✓';
+    setTimeout(() => btn.textContent = '复制', 1800);
+  });
+}
+
+const sections = document.querySelectorAll('.analysis-section');
+const navLinks = document.querySelectorAll('.nav-list a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.querySelector('.section-anchor')?.id;
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
