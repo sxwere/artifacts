@@ -155,69 +155,6 @@ body {
   opacity: 1;
 }
 
-/* ── Split card (left report + right highlights) ── */
-.split-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  overflow: hidden;
-  position: relative;
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-  grid-column: span 2;
-}
-
-.split-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--accent);
-  opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 1;
-}
-
-.split-card:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-  border-color: #c8c4bb;
-}
-
-.split-card:hover::before { opacity: 1; }
-
-.split-divider {
-  background: var(--border);
-  width: 1px;
-}
-
-.split-panel {
-  padding: 28px;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: background 0.15s;
-}
-
-.split-panel:hover {
-  background: #fafaf8;
-}
-
-.split-panel-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.split-panel .card-arrow {
-  float: right;
-  margin-top: -2px;
-}
-
 .card-header {
   display: flex;
   align-items: flex-start;
@@ -343,9 +280,9 @@ footer {
   <div class="container">
     <div class="hero-eyebrow">数据分析作品集 · Portfolio</div>
     <div class="hero-name">孙雪</div>
-    <div class="hero-title">数据分析师</div>
+    <div class="hero-title">数据分析师 · 电商方向</div>
     <div class="hero-bio">
-      审计专业背景，具备财务数据与业务指标的结合理解能力。自 2025 年 11 月起系统学习数据分析，独立完成电商全链路分析项目五项，覆盖 GMV 归因、营销渠道归因（百万级数据）、AOV 拆解、用户留存分析及 A/B 测试。
+      审计专业背景，具备财务数据与业务指标的结合理解能力。自 2025 年 11 月起系统学习数据分析，独立完成电商全链路分析项目四项，覆盖 GMV 归因、营销渠道归因（百万级数据）、AOV 拆解及用户留存分析。
     </div>
     <div class="skill-tags">
       <span class="skill-tag">SQL · CTE & 窗口函数</span>
@@ -354,7 +291,6 @@ footer {
       <span class="skill-tag">Markov 链归因</span>
       <span class="skill-tag">队列留存分析</span>
       <span class="skill-tag">电商漏斗分析</span>
-      <span class="skill-tag">A/B 测试</span>
     </div>
   </div>
 </div>
@@ -365,52 +301,25 @@ footer {
     <div class="section-label">分析项目</div>
     <div class="projects">
 
-      <!-- GMV — split card -->
-      <div class="split-card">
-        <!-- 左：分析报告 -->
-        <a class="split-panel" href="gmv_report.html">
-          <div class="card-header">
-            <span class="card-num">01</span>
-            <span class="card-arrow">↗</span>
-          </div>
-          <div class="split-panel-label">分析报告</div>
-          <div class="card-title">GMV 下滑归因分析</div>
-          <div class="card-desc">
-            对某 D2C 品牌 7–12 月 GMV 数据进行全链路归因，运用连锁替代法将 GMV 变动分解为 UV、CVR、AOV 三因子，深入下钻至渠道 × 活动 × 用户类型维度。
-          </div>
-          <div class="card-finding">
-            <strong>核心发现：</strong>UV 下滑贡献 GMV 降幅 123%，Paid Ads × Discount Campaign 新客流失为主要根因。
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">D2C 漏斗 · 12万行</span>
-            <span class="card-tag">连锁替代法</span>
-            <span class="card-tag">Python</span>
-          </div>
-        </a>
-
-        <div class="split-divider"></div>
-
-        <!-- 右：分析亮点 -->
-        <a class="split-panel" href="gmv_process.html">
-          <div class="card-header">
-            <span class="card-num">01</span>
-            <span class="card-arrow">↗</span>
-          </div>
-          <div class="split-panel-label">分析过程与问题解决</div>
-          <div class="card-title" style="font-size:15px;">遇到的问题与解法</div>
-          <div class="card-desc">
-            修正 UV 重复计数（点击数→去重人数）；设计防数据穿越的用户分类函数；识别渠道维度新客人数膨胀现象并说明口径差异；运用体量加权量化各客群对 CVR 变动的真实贡献。
-          </div>
-          <div class="card-finding">
-            <strong>核心方法：</strong>groupby → max → sum 去重；时间滑窗切断 look-ahead bias；平均体量占比加权贡献计算。
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">数据去重</span>
-            <span class="card-tag">Look-ahead bias</span>
-            <span class="card-tag">体量加权</span>
-          </div>
-        </a>
-      </div>
+      <!-- GMV -->
+      <a class="project-card" href="gmv_report.html">
+        <div class="card-header">
+          <span class="card-num">01</span>
+          <span class="card-arrow">↗</span>
+        </div>
+        <div class="card-title">GMV 下滑归因分析</div>
+        <div class="card-desc">
+          对某 D2C 品牌 7–12 月 GMV 数据进行全链路归因，运用连锁替代法将 GMV 变动分解为 UV、CVR、AOV 三因子，深入下钻至渠道 × 活动 × 用户类型维度。
+        </div>
+        <div class="card-finding">
+          <strong>核心发现：</strong>UV 下滑贡献 GMV 降幅 123%，Paid Ads × Discount Campaign 新客流失为主要根因。
+        </div>
+        <div class="card-tags">
+          <span class="card-tag">D2C 漏斗 · 12万行</span>
+          <span class="card-tag">连锁替代法</span>
+          <span class="card-tag">Python</span>
+        </div>
+      </a>
 
       <!-- 营销归因 -->
       <a class="project-card" href="attribution_report.html">
@@ -473,21 +382,22 @@ footer {
       </a>
 
       <!-- A/B Test -->
-      <a class="project-card" href="ab_test_report.html">
+      <a class="project-card" href="a_b_test.html">
         <div class="card-header">
           <span class="card-num">05</span>
           <span class="card-arrow">↗</span>
         </div>
-        <div class="card-title">A/B 测试统计显著性分析</div>
+        <div class="card-title">营销活动 A/B 测试分析</div>
         <div class="card-desc">
-          对电商场景下的 A/B 实验数据进行统计检验，运用双比例 Z 检验评估转化率差异，Welch t 检验评估连续指标差异，输出可决策的显著性判断。
+          对照组（无广告）与测试组（广告投放）各 30 天营销数据，沿展示 → 点击 → 浏览 → 加购 → 购买全漏斗逐环节做假设检验，定位广告真正发挥作用与失效的节点。
         </div>
         <div class="card-finding">
-          <strong>分析方法：</strong>双比例 Z 检验 + Welch t 检验，覆盖转化率与连续指标的双维度检验。
+          <strong>核心发现：</strong>广告组 CTR 提升 +66.5%，但中段漏斗出现两处连续断层（点击→浏览 −5.7pp、浏览→加购 −19.4pp），导致最终购买转化率反而低 12%。
         </div>
         <div class="card-tags">
-          <span class="card-tag">统计检验</span>
-          <span class="card-tag">Z 检验 · t 检验</span>
+          <span class="card-tag">Kaggle · 60行</span>
+          <span class="card-tag">双比例 Z 检验</span>
+          <span class="card-tag">Welch t 检验</span>
           <span class="card-tag">Python</span>
         </div>
       </a>
@@ -515,8 +425,7 @@ footer {
           连锁替代法<br>
           Markov 链归因<br>
           Shapley 值近似<br>
-          队列留存分析<br>
-          A/B 测试（Z / t 检验）
+          队列留存分析
         </div>
       </div>
       <div class="profile-card">
@@ -532,7 +441,7 @@ footer {
 </div>
 
 <footer>
-  数据分析作品集 · 孙雪 · 联系方式：1305297118@qq.com
+  数据分析作品集 ·联系方式：1305297118@qq.com
 </footer>
 
 </body>
