@@ -3,608 +3,1096 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GMV下降归因分析报告 · 2025年11–12月</title>
+<title>GMV 下滑归因分析</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-  --navy:      #0d1b2a;
-  --navy-mid:  #1a2d42;
-  --navy-lite: #243b55;
-  --cold-white:#f0f4f8;
-  --paper:     #ffffff;
-  --text-pri:  #0d1b2a;
-  --text-sec:  #4a6274;
-  --text-dim:  #8aa0b2;
-  --accent:    #c6f135;
-  --red:       #e84855;
-  --blue:      #3a8fd4;
-  --green:     #34c78a;
-  --border:    #dde5ed;
-  --card:      #ffffff;
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --border: #d4dce6;
+  --ink: #1a1a1a;
+  --mid: #4a4a4a;
+  --muted: #7a8a9a;
+  --accent: #1a4480;
+  --accent-light: #e8f0fe;
+  --warn: #92400e;
+  --warn-light: #fef3c7;
+  --code-bg: #1e1e2e;
+  --code-surface: #2a2a3e;
 }
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--cold-white); }
+
 body {
-  font-family: "PingFang SC","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
-  color: var(--text-pri);
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
 }
 
-/* HERO */
-.hero { background: var(--navy); color: #fff; padding: 64px 0 56px; }
-.hero .inner { max-width: 1000px; margin: 0 auto; padding: 0 32px; }
-.hero .kicker {
-  font-family: "SF Mono","JetBrains Mono","Consolas",monospace;
-  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 20px;
-  display: flex; align-items: center; gap: 10px;
-}
-.hero .kicker::before { content:""; width:24px; height:2px; background:var(--accent); display:inline-block; }
-.hero h1 {
-  font-size: clamp(28px,4vw,48px); font-weight: 800;
-  letter-spacing: -.02em; line-height: 1.15; margin: 0 0 18px; color: #fff;
-}
-.hero h1 em { color: var(--accent); font-style: normal; }
-.hero .sub { font-size: 15px; color: #8aa8c4; max-width: 600px; margin: 0 0 40px; }
-.hero .meta-bar {
-  display: flex; flex-wrap: wrap; gap: 32px;
-  border-top: 1px solid #243b55; padding-top: 28px;
-}
-.hero .meta-item { font-size: 12px; color: #6e8ca4; }
-.hero .meta-item strong { display:block; font-size:14px; color:#d0e4f4; margin-top:4px; font-weight:600; }
-
-/* LAYOUT */
-.body-wrap { max-width: 1000px; margin: 0 auto; padding: 0 32px 100px; }
-
-/* SECTION */
-.sec { margin-top: 72px; }
-.sec-head {
-  display: flex; align-items: center; gap: 14px;
-  margin-bottom: 28px; border-bottom: 2px solid var(--navy); padding-bottom: 14px;
-}
-.sec-head .badge {
-  font-family:"SF Mono","JetBrains Mono",monospace; font-size:11px;
-  background:var(--navy); color:var(--accent); padding:3px 10px; letter-spacing:.1em;
-}
-.sec-head h2 { font-size:22px; font-weight:800; margin:0; letter-spacing:-.01em; }
-.sec-lede { font-size:14.5px; color:var(--text-sec); max-width:700px; margin:0 0 28px; }
-
-/* KPI STRIP */
-.kpi-strip {
-  display: grid; grid-template-columns: repeat(4,1fr);
-  gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 32px 0;
-}
-.kpi-cell { background: var(--card); padding: 22px 20px; }
-.kpi-cell.red  { border-top: 3px solid var(--red); }
-.kpi-cell.green{ border-top: 3px solid var(--green); }
-.kpi-cell.acc  { border-top: 3px solid var(--accent); }
-.kpi-val { font-size:32px; font-weight:800; letter-spacing:-.02em; line-height:1; }
-.kpi-val.neg { color: var(--red); }
-.kpi-val.pos { color: var(--green); }
-.kpi-val.dim { color: var(--accent); filter: brightness(.75); }
-.kpi-label { font-size:12px; color:var(--text-dim); margin-top:8px; line-height:1.4; }
-
-/* CALLOUT */
-.callout { border-left:4px solid var(--navy); background:#eef4fa; padding:16px 20px; margin:20px 0; font-size:14px; }
-.callout.warn { border-color:var(--red); background:#fff0f1; }
-.callout.note { border-color:var(--blue); background:#f0f6fc; }
-.callout.ok   { border-color:var(--green); background:#f0faf5; }
-.callout b { font-weight:700; }
-
-/* ATTR BAR */
-.attr-bar-wrap { background:var(--card); border:1px solid var(--border); padding:28px 28px 22px; }
-.attr-bar-wrap h3 {
-  font-size:13px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
-  color:var(--text-dim); margin:0 0 20px;
-}
-.attr-row { margin-bottom:18px; }
-.attr-meta { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
-.attr-meta .factor { font-weight:700; }
-.attr-meta .nums { font-family:"SF Mono","JetBrains Mono",monospace; font-size:12px; }
-.attr-track { height:26px; background:#eef4fa; position:relative; border:1px solid var(--border); }
-.attr-fill {
-  height:100%; display:flex; align-items:center; justify-content:flex-end;
-  padding:0 8px; font-family:"SF Mono","JetBrains Mono",monospace;
-  font-size:11px; font-weight:700; color:#fff;
-}
-.attr-fill.neg { background:var(--red); }
-.attr-fill.pos { background:var(--green); }
-.attr-footnote { font-size:12px; color:var(--text-dim); margin-top:14px; font-style:italic; }
-
-/* GRID */
-.two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-.three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
-
-/* CARD */
-.card { background:var(--card); border:1px solid var(--border); padding:22px 24px; }
-.card h3 { font-size:15px; font-weight:700; margin:0 0 10px; }
-.card p { font-size:14px; color:var(--text-sec); margin:0 0 8px; }
-
-/* CHART BOX */
-.chart-box { background:var(--card); border:1px solid var(--border); padding:22px 22px 14px; }
-.chart-box h3 {
-  font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-  color:var(--text-dim); margin:0 0 14px;
+.hero {
+  background: var(--accent);
+  padding: 56px 0 48px;
 }
 
-/* DATA TABLE */
-.dt-wrap { background:var(--card); border:1px solid var(--border); margin:20px 0; overflow-x:auto; }
-table.dt { width:100%; border-collapse:collapse; font-size:13.5px; }
-table.dt th {
-  text-align:left; font-family:"SF Mono","JetBrains Mono",monospace; font-size:11px;
-  text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim);
-  background:#f6f9fc; padding:10px 14px; border-bottom:2px solid var(--border); white-space:nowrap;
-}
-table.dt td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
-table.dt tr:last-child td { border-bottom:none; }
-table.dt td.r { text-align:right; font-family:"SF Mono","JetBrains Mono",monospace; }
-table.dt td.neg { color:var(--red); font-weight:700; }
-table.dt td.pos { color:var(--green); font-weight:700; }
-table.dt tr.hi td { background:#fffbf0; }
-
-/* FUNNEL */
-.fnl { background:var(--card); border:1px solid var(--border); margin:24px 0; }
-.fnl-hd {
-  display:grid; grid-template-columns:160px 1fr 160px;
-  background:#f6f9fc; border-bottom:2px solid var(--border);
-}
-.fnl-hd > div {
-  font-family:"SF Mono","JetBrains Mono",monospace; font-size:11px;
-  text-transform:uppercase; letter-spacing:.05em; color:var(--text-dim); padding:10px 14px;
-}
-.fnl-row { display:grid; grid-template-columns:160px 1fr 160px; border-bottom:1px solid var(--border); }
-.fnl-row:last-child { border-bottom:none; }
-.fnl-name { font-weight:700; font-size:13.5px; padding:14px; display:flex; align-items:center; }
-.fnl-bars { padding:10px 14px; display:flex; flex-direction:column; gap:5px; justify-content:center; }
-.fbar-row { display:flex; align-items:center; gap:7px; }
-.fbar-mo { font-size:10.5px; color:var(--text-dim); width:34px; flex-shrink:0; font-family:"SF Mono","JetBrains Mono",monospace; }
-.fbar-track { flex:1; height:16px; background:#eef4fa; border:1px solid var(--border); }
-.fbar-fill { height:100%; }
-.fbar-v { font-size:10.5px; font-family:"SF Mono","JetBrains Mono",monospace; color:var(--text-sec); width:42px; text-align:right; flex-shrink:0; }
-.fnl-diff { padding:14px; display:flex; flex-direction:column; justify-content:center; }
-.fnl-diff .d-val { font-family:"SF Mono","JetBrains Mono",monospace; font-size:13px; font-weight:700; }
-.fnl-diff .d-val.neg { color:var(--red); }
-.fnl-diff .d-val.pos { color:var(--green); }
-.fnl-diff .d-val.flat { color:var(--text-dim); }
-.fnl-diff small { font-size:11px; color:var(--text-dim); display:block; margin-top:2px; }
-
-/* DONUT ROW */
-.donut-row { display:flex; align-items:center; gap:20px; }
-.donut-legend { flex:1; display:flex; flex-direction:column; gap:10px; }
-.legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
-.legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.legend-val { font-family:"SF Mono","JetBrains Mono",monospace; font-size:11.5px; color:var(--text-sec); margin-left:auto; }
-
-/* FIG */
-.fig { margin:24px 0; }
-.fig img { width:100%; display:block; border:1px solid var(--border); background:#fff; }
-.fig .cap { font-size:12.5px; color:var(--text-dim); margin-top:8px; padding-left:12px; border-left:2px solid var(--border); }
-
-/* FOOTER */
-.report-footer {
-  margin-top:80px; padding:20px 0 0; border-top:2px solid var(--navy);
-  display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
-  font-size:11.5px; font-family:"SF Mono","JetBrains Mono",monospace;
-  color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
 }
 
-@media (max-width:768px){
-  .kpi-strip { grid-template-columns:1fr 1fr; }
-  .two-col,.three-col { grid-template-columns:1fr; }
-  .fnl-hd,.fnl-row { grid-template-columns:100px 1fr 120px; }
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  margin-bottom: 28px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
 }
-</style>
+.back-link:hover { color: rgba(255,255,255,0.8); }
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+
+.hero-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 28px;
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+.hero-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+
+.meta-item { display: flex; flex-direction: column; gap: 3px; }
+
+.meta-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+.meta-value {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+
+.page-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+  min-height: 80vh;
+}
+
+.sidebar {
+  padding: 40px 20px 40px 0;
+  position: sticky;
+  top: 24px;
+  align-self: start;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.nav-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+
+.nav-list a {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+
+.nav-list a:hover { background: var(--accent-light); color: var(--accent); }
+.nav-list a.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+
+.nav-sub {
+  padding-left: 10px;
+  border-left: 2px solid var(--border);
+  margin-top: 2px;
+  margin-bottom: 4px;
+}
+
+.nav-sub a {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
+.main {
+  padding: 40px 0 80px 28px;
+  border-left: 1px solid var(--border);
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.analysis-section { margin-bottom: 56px; }
+
+.section-anchor {
+  display: block;
+  height: 0;
+  margin-top: -16px;
+  padding-top: 16px;
+  visibility: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.card p { font-size: 13.5px; color: var(--mid); line-height: 1.8; }
+.card p + p { margin-top: 10px; }
+
+.finding {
+  background: var(--accent-light);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 14px;
+}
+
+.finding-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.finding p { font-size: 13.5px; color: var(--mid); line-height: 1.75; }
+.finding strong { color: var(--accent); font-weight: 600; }
+
+.pitfall {
+  background: var(--warn-light);
+  border-left: 3px solid #d97706;
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 14px;
+}
+
+.pitfall-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-bottom: 6px;
+}
+
+.pitfall p { font-size: 13.5px; color: #78350f; line-height: 1.75; }
+.pitfall strong { color: var(--warn); }
+
+/* ── 三因子数字卡片 ── */
+.factor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.factor-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  text-align: center;
+}
+
+.factor-card.negative { border-top: 3px solid #ef4444; }
+.factor-card.positive { border-top: 3px solid #22c55e; }
+.factor-card.neutral  { border-top: 3px solid #f59e0b; }
+
+.factor-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.factor-pct {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.factor-card.negative .factor-pct { color: #ef4444; }
+.factor-card.positive .factor-pct { color: #22c55e; }
+.factor-card.neutral  .factor-pct { color: #f59e0b; }
+
+.factor-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* ── 漏斗对比表 ── */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 14px;
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.compare-table th {
+  background: #f8f9fb;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--mid);
+}
+
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .diff-neg { color: #ef4444; font-weight: 600; }
+.compare-table .diff-pos { color: #22c55e; font-weight: 600; }
+.compare-table .diff-row td { background: #fafafa; font-weight: 600; }
+
+/* ── Code blocks ── */
+.code-block-wrapper {
+  margin-bottom: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #3a3a52;
+}
+
+.code-block-header {
+  background: var(--code-surface);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.code-block-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #a0a0c0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.code-block-toggle { display: flex; align-items: center; gap: 12px; }
+
+.copy-btn {
+  font-size: 10.5px;
+  color: #6060a0;
+  background: none;
+  border: 1px solid #3a3a52;
+  border-radius: 4px;
+  padding: 3px 9px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+.copy-btn:hover { color: #a0a0c0; border-color: #6060a0; }
+
+.toggle-btn {
+  font-size: 10.5px;
+  color: #6060a0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+}
+.toggle-btn:hover { color: #a0a0c0; }
+.toggle-icon { display: inline-block; transition: transform 0.2s; }
+.toggle-icon.collapsed { transform: rotate(-90deg); }
+
+pre.code-content {
+  background: var(--code-bg);
+  margin: 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  transition: max-height 0.3s ease, opacity 0.2s;
+  max-height: 1200px;
+}
+
+pre.code-content.collapsed {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  opacity: 0;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.kw { color: #cba6f7; }
+.fn { color: #89b4fa; }
+.st { color: #a6e3a1; }
+.cm { color: #6c7086; font-style: italic; }
+.num { color: #fab387; }
+.var { color: #cdd6f4; }
+.op { color: #89dceb; }
+
+.section-divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+
+.tag {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ── 步骤链 ── */
+.step-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 14px;
+}
+
+.step-item {
+  display: flex;
+  gap: 14px;
+  position: relative;
+}
+
+.step-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.step-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.step-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  background: var(--border);
+  margin: 2px 0;
+}
+
+.step-item:last-child .step-connector { display: none; }
+
+.step-body {
+  padding-bottom: 20px;
+  flex: 1;
+}
+
+.step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+  padding-top: 2px;
+}
+
+.step-desc {
+  font-size: 12.5px;
+  color: var(--mid);
+  line-height: 1.7;
+}
+
+.step-result {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+footer {
+  text-align: center;
+  padding: 28px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+@media (max-width: 700px) {
+  .page-body { grid-template-columns: 1fr; padding: 0 20px; }
+  .sidebar { display: none; }
+  .main { padding: 32px 0; border-left: none; }
+  .hero { padding: 40px 0 36px; }
+  .hero-title { font-size: 24px; }
+  .container { padding: 0 20px; }
+  .factor-row { grid-template-columns: 1fr; }
+}</style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="inner">
-    <div class="kicker">GMV Decline Analysis · D2C Marketing Funnel</div>
-    <h1>12月GMV下降 <em>–7.45%</em><br>归因分析报告</h1>
-    <p class="sub">基于 d2c_marketing_funnel_data.csv（12万条记录），对2025年11→12月GMV环比下滑进行三因子拆解，追溯至渠道、Campaign与漏斗转化环节。</p>
-    <div class="meta-bar">
-      <div class="meta-item">数据集<strong>d2c_marketing_funnel_data.csv</strong></div>
-      <div class="meta-item">数据量<strong>120,000 行 · 17 列</strong></div>
-      <div class="meta-item">分析区间<strong>2025-07 至 2025-12</strong></div>
-      <div class="meta-item">对比月份<strong>2025-11 vs 2025-12</strong></div>
-      <div class="meta-item">AOV说明<strong>数据受限，待独立数据集补充</strong></div>
+<div class="hero">
+  <div class="container">
+    <a class="back-link" href="index.html">← 返回作品集</a>
+    <div class="hero-eyebrow">项目 01 · GMV 归因</div>
+    <div class="hero-title">GMV 下滑归因分析</div>
+    <div class="hero-sub">
+      某 D2C 品牌 12 月 GMV 环比下滑。通过连锁替代法拆解三因子，依次排除 CVR、锁定 UV，下钻至渠道 × 活动维度定位根因，并与 8→9 月增长期对比揭示品牌 GMV 运作规律。
     </div>
-  </div>
-</header>
-
-<div class="body-wrap">
-
-<!-- 00 核心结论 -->
-<section class="sec">
-  <div class="sec-head"><span class="badge">EXEC SUMMARY</span><h2>核心结论一览</h2></div>
-  <div class="kpi-strip">
-    <div class="kpi-cell red"><div class="kpi-val neg">−7.45%</div><div class="kpi-label">GMV 环比（11→12月）<br>¥2,741,498 → ¥2,537,147</div></div>
-    <div class="kpi-cell red"><div class="kpi-val neg">−9.17%</div><div class="kpi-label">UV 环比下降（主凶）<br>19,700 → 17,894</div></div>
-    <div class="kpi-cell green"><div class="kpi-val pos">+2.98%</div><div class="kpi-label">CVR 环比微升（正向抵消）<br>6.68% → 6.88%</div></div>
-    <div class="kpi-cell acc"><div class="kpi-val dim">−1.06%</div><div class="kpi-label">AOV 环比小降（次要因子）<br>¥2,083 → ¥2,061</div></div>
-  </div>
-  <div class="callout warn">
-    <b>核心诊断</b> — UV 流量下滑是本次 GMV 下降的绝对主因，贡献了 <b>122.99%</b> 的下跌量，且流量损失高度集中在 <b>Paid Ads × Discount Campaign</b> 的新客（流失 390 人，贡献渠道总下跌 39.39%）。CVR 的小幅改善（+0.20pp）部分对冲了压力，但体量不足以抵消 UV 的塌陷。
-  </div>
-</section>
-
-<!-- 01 GMV趋势 + 三因子 -->
-<section class="sec">
-  <div class="sec-head"><span class="badge">01</span><h2>GMV 趋势与三因子归因拆解</h2></div>
-  <p class="sec-lede">GMV = UV × CVR × AOV。通过连锁替代法，将12月 GMV 下滑额（−¥204,351）精确拆分至各驱动因子的独立贡献。</p>
-
-  <div class="two-col">
-    <div class="chart-box">
-      <h3>月度 GMV 趋势（万元）</h3>
-      <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
-<line x1="50" y1="145.1" x2="444" y2="145.1" stroke="#dde5ed" stroke-width="1"/>
-<text x="45" y="149.1" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">250</text>
-<line x1="50" y1="124.3" x2="444" y2="124.3" stroke="#dde5ed" stroke-width="1"/>
-<text x="45" y="128.3" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">260</text>
-<line x1="50" y1="103.4" x2="444" y2="103.4" stroke="#dde5ed" stroke-width="1"/>
-<text x="45" y="107.4" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">270</text>
-<line x1="50" y1="82.6" x2="444" y2="82.6" stroke="#dde5ed" stroke-width="1"/>
-<text x="45" y="86.6" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">280</text>
-<line x1="50" y1="61.7" x2="444" y2="61.7" stroke="#dde5ed" stroke-width="1"/>
-<text x="45" y="65.7" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">290</text>
-<line x1="50" y1="40.9" x2="444" y2="40.9" stroke="#dde5ed" stroke-width="1"/>
-<text x="45" y="44.9" text-anchor="end" font-size="10" fill="#8aa0b2" font-family="monospace">300</text>
-<rect x="64.8" y="43.5" width="36.1" height="122.5" fill="#3a8fd4" rx="2"/>
-<text x="82.8" y="38.5" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">298.75</text>
-<text x="82.8" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Jul</text>
-<rect x="130.4" y="73.7" width="36.1" height="92.3" fill="#3a8fd4" rx="2"/>
-<text x="148.5" y="68.7" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">284.27</text>
-<text x="148.5" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Aug</text>
-<rect x="196.1" y="48.4" width="36.1" height="117.6" fill="#3a8fd4" rx="2"/>
-<text x="214.2" y="43.4" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">296.38</text>
-<text x="214.2" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Sep</text>
-<rect x="261.8" y="52.5" width="36.1" height="113.5" fill="#3a8fd4" rx="2"/>
-<text x="279.8" y="47.5" text-anchor="middle" font-size="10" fill="#3a8fd4" font-weight="bold" font-family="monospace">294.4</text>
-<text x="279.8" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Oct</text>
-<rect x="327.4" y="94.8" width="36.1" height="71.2" fill="#e84855" rx="2"/>
-<text x="345.5" y="89.8" text-anchor="middle" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">274.15</text>
-<text x="345.5" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Nov</text>
-<rect x="393.1" y="137.4" width="36.1" height="28.6" fill="#c0243b" rx="2"/>
-<text x="411.2" y="132.4" text-anchor="middle" font-size="10" fill="#c0243b" font-weight="bold" font-family="monospace">253.71</text>
-<text x="411.2" y="196" text-anchor="middle" font-size="11" fill="#4a6274">Dec</text>
-</svg>
-    </div>
-    <div class="attr-bar-wrap">
-      <h3>11→12月 GMV 变动归因（连锁替代法）</h3>
-      <div class="attr-row">
-        <div class="attr-meta">
-          <span class="factor">📉 UV 流量下滑</span>
-          <span class="nums" style="color:var(--red)">−¥251,327 &nbsp;|&nbsp; 贡献 <b>122.99%</b></span>
-        </div>
-        <div class="attr-track"><div class="attr-fill neg" style="width:100%">−122.99%</div></div>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">数据规模</span>
+        <span class="meta-value">D2C 漏斗数据 · 7–12月</span>
       </div>
-      <div class="attr-row">
-        <div class="attr-meta">
-          <span class="factor">📈 CVR 转化率改善</span>
-          <span class="nums" style="color:var(--green)">+¥74,255 &nbsp;|&nbsp; 贡献 <b>−36.34%</b>（抵消）</span>
-        </div>
-        <div class="attr-track"><div class="attr-fill pos" style="width:36.34%">+36.34%</div></div>
+      <div class="meta-item">
+        <span class="meta-label">核心方法</span>
+        <span class="meta-value">连锁替代法 · 假设排除</span>
       </div>
-      <div class="attr-row">
-        <div class="attr-meta">
-          <span class="factor">📉 AOV 客单价小降</span>
-          <span class="nums" style="color:var(--red)">−¥27,279 &nbsp;|&nbsp; 贡献 <b>13.35%</b></span>
-        </div>
-        <div class="attr-track"><div class="attr-fill neg" style="width:13.35%">−13.35%</div></div>
-      </div>
-      <div class="attr-row">
-        <div class="attr-meta">
-          <span class="factor" style="color:var(--text-dim)">∑ 合计</span>
-          <span class="nums">−¥204,351 &nbsp;|&nbsp; <b>100.00%</b> ✓</span>
-        </div>
-      </div>
-      <p class="attr-footnote">注：AOV 受限于数据集记录颗粒度，将由独立数据集补充分析</p>
-    </div>
-  </div>
-
-  <div class="dt-wrap" style="margin-top:24px;">
-    <table class="dt">
-      <thead><tr><th>月份</th><th>UV</th><th>购买UV</th><th>CVR</th><th>AOV (¥)</th><th>GMV (¥)</th><th>GMV MoM</th></tr></thead>
-      <tbody>
-        <tr><td>2025-07</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,987,536</td><td class="r">—</td></tr>
-        <tr><td>2025-08</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,842,661</td><td class="r neg">−4.85%</td></tr>
-        <tr><td>2025-09</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,963,808</td><td class="r pos">+4.26%</td></tr>
-        <tr><td>2025-10</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">2,943,950</td><td class="r neg">−0.67%</td></tr>
-        <tr class="hi"><td><b>2025-11</b></td><td class="r">19,700</td><td class="r">1,316</td><td class="r">6.68%</td><td class="r">2,083</td><td class="r"><b>2,741,498</b></td><td class="r neg">−6.88%</td></tr>
-        <tr class="hi"><td><b>2025-12 ↓</b></td><td class="r neg">17,894</td><td class="r">1,231</td><td class="r pos">6.88%</td><td class="r neg">2,061</td><td class="r neg"><b>2,537,147</b></td><td class="r neg">−7.45%</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- 02 UV归因 -->
-<section class="sec">
-  <div class="sec-head"><span class="badge">02</span><h2>UV 下降归因：用户 → 渠道 → Campaign</h2></div>
-  <p class="sec-lede">UV 环比下滑 1,806 人（−9.17%）。从用户结构切入，逐层下钻至渠道和 Campaign 维度，定位核心流失源。</p>
-
-  <div class="two-col">
-    <div class="chart-box">
-      <h3>12月 UV 用户结构（17,894人）</h3>
-      <div class="donut-row" style="min-height:160px;">
-        <div style="width:160px;flex-shrink:0;"><svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">
-<path d="M 80.00 38.00 L 80.00 10.00 A 70 70 0 1 1 36.59 25.09 L 53.95 47.05 A 42 42 0 1 0 80.00 38.00 Z" fill="#3a8fd4"/>
-<path d="M 53.95 47.05 L 36.59 25.09 A 70 70 0 0 1 70.61 10.63 L 74.37 38.38 A 42 42 0 0 0 53.95 47.05 Z" fill="#c6f135"/>
-<path d="M 74.37 38.38 L 70.61 10.63 A 70 70 0 0 1 80.00 10.00 L 80.00 38.00 A 42 42 0 0 0 74.37 38.38 Z" fill="#e84855"/>
-<text x="80" y="74" text-anchor="middle" font-size="11" fill="#4a6274" font-weight="bold">UV</text>
-<text x="80" y="90" text-anchor="middle" font-size="11" fill="#4a6274" font-weight="bold">结构</text>
-</svg></div>
-        <div class="donut-legend">
-          <div class="legend-item"><span class="legend-dot" style="background:#3a8fd4"></span>新客户<span class="legend-val">15,989人 · 89.35%</span></div>
-          <div class="legend-item"><span class="legend-dot" style="background:#c6f135"></span>回流客户<span class="legend-val">1,522人 · 8.51%</span></div>
-          <div class="legend-item"><span class="legend-dot" style="background:#e84855"></span>留存客户<span class="legend-val">383人 · 2.14%</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <h3>11 vs 12月 UV 用户结构对比</h3>
-      <div class="dt-wrap" style="margin:10px 0 0;border:none;">
-        <table class="dt">
-          <thead><tr><th>客群</th><th>11月</th><th>12月</th><th>变动</th><th>贡献</th></tr></thead>
-          <tbody>
-            <tr class="hi"><td><b>新客户 ⚠️</b></td><td class="r">17,996</td><td class="r">15,989</td><td class="r neg">−2,007</td><td class="r neg"><b>111.1%</b></td></tr>
-            <tr><td>唤醒客户</td><td class="r">1,255</td><td class="r">1,522</td><td class="r pos">+267</td><td class="r pos">−14.8%</td></tr>
-            <tr><td>留存客户</td><td class="r">449</td><td class="r">383</td><td class="r neg">−66</td><td class="r neg">3.6%</td></tr>
-            <tr style="background:#f6f9fc"><td><b>合计</b></td><td class="r"><b>19,700</b></td><td class="r"><b>17,894</b></td><td class="r neg"><b>−1,806</b></td><td class="r">100%</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p style="font-size:12.5px;color:var(--text-dim);margin-top:10px;">唤醒客户逆势增长 +267，对冲了部分新客流失；留存客户长期偏低（2.1%），建议核实产品耐用品属性。</p>
-    </div>
-  </div>
-
-  <div class="callout note" style="margin-top:20px;">
-    <b>结构性风险</b> — 大盘 89% 依赖新客，一旦拉新渠道效率下滑，GMV 将直接承压，难以由存量用户缓冲。这是比单月下滑更深层的业务风险。
-  </div>
-
-  <div class="chart-box" style="margin-top:28px;">
-    <h3>新客流失渠道贡献（共流失 2,046 人次 · 含跨渠道重复）</h3>
-    <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
-<text x="62" y="44.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Paid Ads</text>
-<rect x="70" y="24.1" width="374.0" height="14.3" fill="#b8d4ec" rx="2"/>
-<text x="448.0" y="38.5" font-size="10" fill="#4a6274" font-family="monospace">8,070</text>
-<rect x="70" y="42.5" width="336.6" height="14.3" fill="#e84855" rx="2"/>
-<text x="410.6463444857497" y="58.9" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">7,264</text>
-<text x="62" y="85.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Organic</text>
-<rect x="70" y="65.2" width="255.6" height="14.3" fill="#b8d4ec" rx="2"/>
-<text x="329.6361833952912" y="79.5" font-size="10" fill="#4a6274" font-family="monospace">5,516</text>
-<rect x="70" y="83.5" width="221.2" height="14.3" fill="#e84855" rx="2"/>
-<text x="295.1558859975217" y="99.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">4,772</text>
-<text x="62" y="126.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Social</text>
-<rect x="70" y="106.2" width="126.8" height="14.3" fill="#b8d4ec" rx="2"/>
-<text x="200.8448574969021" y="120.5" font-size="10" fill="#4a6274" font-family="monospace">2,737</text>
-<rect x="70" y="124.5" width="112.2" height="14.3" fill="#e84855" rx="2"/>
-<text x="186.2463444857497" y="140.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">2,422</text>
-<text x="62" y="167.5" text-anchor="end" font-size="12" fill="#0d1b2a" font-weight="bold">Email</text>
-<rect x="70" y="147.2" width="83.7" height="14.3" fill="#b8d4ec" rx="2"/>
-<text x="157.6981412639405" y="161.5" font-size="10" fill="#4a6274" font-family="monospace">1,806</text>
-<rect x="70" y="165.5" width="75.3" height="14.3" fill="#e84855" rx="2"/>
-<text x="149.3097893432466" y="181.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">1,625</text>
-<rect x="70" y="188" width="12" height="8" fill="#b8d4ec" rx="1"/>
-<text x="86" y="195" font-size="10" fill="#4a6274">11月</text>
-<rect x="126" y="188" width="12" height="8" fill="#e84855" rx="1"/>
-<text x="142" y="195" font-size="10" fill="#e84855">12月</text>
-</svg>
-  </div>
-
-  <div class="dt-wrap">
-    <table class="dt">
-      <thead><tr><th>渠道</th><th>11月新客</th><th>12月新客</th><th>11月占比</th><th>12月占比</th><th>变动人次</th><th>贡献占比</th></tr></thead>
-      <tbody>
-        <tr class="hi"><td><b>Paid Ads ⚠️</b></td><td class="r">8,070</td><td class="r">7,264</td><td class="r">44.51%</td><td class="r">45.17%</td><td class="r neg">−806</td><td class="r neg"><b>39.39%</b></td></tr>
-        <tr><td>Organic</td><td class="r">5,516</td><td class="r">4,772</td><td class="r">30.43%</td><td class="r">29.67%</td><td class="r neg">−744</td><td class="r neg">36.36%</td></tr>
-        <tr><td>Social</td><td class="r">2,737</td><td class="r">2,422</td><td class="r">15.10%</td><td class="r">15.06%</td><td class="r neg">−315</td><td class="r neg">15.40%</td></tr>
-        <tr><td>Email</td><td class="r">1,806</td><td class="r">1,625</td><td class="r">9.96%</td><td class="r">10.10%</td><td class="r neg">−181</td><td class="r neg">8.85%</td></tr>
-        <tr style="background:#f6f9fc"><td><b>合计</b></td><td class="r"><b>18,129</b></td><td class="r"><b>16,083</b></td><td class="r">—</td><td class="r">—</td><td class="r neg"><b>−2,046</b></td><td class="r">100%</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="callout warn">
-    <b>Discount Campaign 是跨渠道最大公约数</b> — 新客下降严重程度从重到轻：Paid Ads → Organic → Social → Email。Discount 在各渠道内均占约 50% 新客，其跨渠道同步下滑高度指向促销机制问题，而非单一渠道的运营失误。
-  </div>
-
-  <div class="chart-box" style="margin-top:20px;">
-    <h3>新客流失 Campaign 下钻（渠道 × Campaign，按贡献排序）</h3>
-    <svg viewBox="0 0 460 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
-<text x="122" y="36.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="bold">PaidAds·Discount</text>
-<rect x="130" y="20.9" width="250.0" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="33.2" width="226.0" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="36.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−390</text>
-<text x="122" y="68.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="bold">Organic·Discount</text>
-<rect x="130" y="53.4" width="167.5" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="65.8" width="145.6" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="68.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−357</text>
-<text x="122" y="101.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">PaidAds·NewLaunch</text>
-<rect x="130" y="85.8" width="148.8" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="98.2" width="133.8" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="101.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−244</text>
-<text x="122" y="133.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Organic·Influencer</text>
-<rect x="130" y="118.3" width="71.1" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="130.8" width="57.7" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="133.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−218</text>
-<text x="122" y="166.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">PaidAds·Influencer</text>
-<rect x="130" y="150.8" width="99.5" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="163.2" width="88.3" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="166.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−181</text>
-<text x="122" y="198.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Organic·NewLaunch</text>
-<rect x="130" y="183.3" width="101.6" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="195.8" width="91.1" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="198.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−171</text>
-<text x="122" y="231.2" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Social·NewLaunch</text>
-<rect x="130" y="215.8" width="51.4" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="228.2" width="43.4" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="231.2" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−130</text>
-<text x="122" y="263.8" text-anchor="end" font-size="10" fill="#0d1b2a" font-weight="normal">Social·Discount</text>
-<rect x="130" y="248.3" width="83.9" height="10.4" fill="#b8d4ec" rx="1"/>
-<rect x="130" y="260.8" width="76.9" height="10.4" fill="#e84855" rx="1"/>
-<text x="384" y="263.8" font-size="10" fill="#e84855" font-weight="bold" font-family="monospace">−114</text>
-<rect x="130" y="286" width="12" height="8" fill="#b8d4ec" rx="1"/>
-<text x="146" y="293" font-size="10" fill="#4a6274">11月</text>
-<rect x="186" y="286" width="12" height="8" fill="#e84855" rx="1"/>
-<text x="202" y="293" font-size="10" fill="#e84855">12月</text>
-<text x="384" y="293" font-size="10" fill="#4a6274" font-family="monospace">变动</text>
-</svg>
-  </div>
-
-  <div class="dt-wrap">
-    <table class="dt">
-      <thead><tr><th>渠道</th><th>Campaign</th><th>11月</th><th>12月</th><th>渠道内11月占比</th><th>渠道内12月占比</th><th>变动</th><th>贡献</th></tr></thead>
-      <tbody>
-        <tr class="hi"><td><b>Paid Ads</b></td><td><b>Discount ⚠️</b></td><td class="r">4,062</td><td class="r">3,672</td><td class="r">50.17%</td><td class="r">50.43%</td><td class="r neg">−390</td><td class="r neg"><b>18.97%</b></td></tr>
-        <tr class="hi"><td>Organic</td><td><b>Discount ⚠️</b></td><td class="r">2,722</td><td class="r">2,365</td><td class="r">49.24%</td><td class="r">49.46%</td><td class="r neg">−357</td><td class="r neg"><b>17.36%</b></td></tr>
-        <tr><td>Paid Ads</td><td>New Launch</td><td class="r">2,418</td><td class="r">2,174</td><td class="r">29.87%</td><td class="r">29.86%</td><td class="r neg">−244</td><td class="r neg">11.87%</td></tr>
-        <tr><td>Organic</td><td>Influencer</td><td class="r">1,155</td><td class="r">937</td><td class="r">20.89%</td><td class="r">19.59%</td><td class="r neg">−218</td><td class="r neg">10.60%</td></tr>
-        <tr><td>Paid Ads</td><td>Influencer</td><td class="r">1,616</td><td class="r">1,435</td><td class="r">19.96%</td><td class="r">19.71%</td><td class="r neg">−181</td><td class="r neg">8.80%</td></tr>
-        <tr><td>Organic</td><td>New Launch</td><td class="r">1,651</td><td class="r">1,480</td><td class="r">29.87%</td><td class="r">30.95%</td><td class="r neg">−171</td><td class="r neg">8.32%</td></tr>
-        <tr><td>Social</td><td>New Launch</td><td class="r">835</td><td class="r">705</td><td class="r">30.47%</td><td class="r">29.07%</td><td class="r neg">−130</td><td class="r neg">6.32%</td></tr>
-        <tr><td>Social</td><td>Discount</td><td class="r">1,363</td><td class="r">1,249</td><td class="r">49.74%</td><td class="r">51.51%</td><td class="r neg">−114</td><td class="r neg">5.54%</td></tr>
-        <tr><td>Email</td><td>Discount</td><td class="r">918</td><td class="r">822</td><td class="r">50.83%</td><td class="r">50.55%</td><td class="r neg">−96</td><td class="r neg">4.67%</td></tr>
-        <tr><td>Social</td><td>Influencer</td><td class="r">542</td><td class="r">471</td><td class="r">19.78%</td><td class="r">19.42%</td><td class="r neg">−71</td><td class="r neg">3.45%</td></tr>
-        <tr><td>Email</td><td>New Launch</td><td class="r">539</td><td class="r">479</td><td class="r">29.84%</td><td class="r">29.46%</td><td class="r neg">−60</td><td class="r neg">2.92%</td></tr>
-        <tr><td>Email</td><td>Influencer</td><td class="r">349</td><td class="r">325</td><td class="r">19.32%</td><td class="r">19.99%</td><td class="r neg">−24</td><td class="r neg">1.17%</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="callout note" style="margin-top:4px;">
-    <b>口径说明</b> — 渠道人次加总（−2,046）高于纯 UV 人数（−2,007），系同一用户从多渠道进入导致重复计数，方向性结论不受影响。
-  </div>
-</section>
-
-<!-- 03 CVR漏斗 -->
-<section class="sec">
-  <div class="sec-head"><span class="badge">03</span><h2>CVR 漏斗分析：整体 + 客群切片</h2></div>
-  <p class="sec-lede">大盘 CVR 环比微升 +0.20pp（6.68% → 6.88%），但各环节表现高度分化。按新客 / 唤醒 / 留存切片后，问题节点与责任客群更清晰。</p>
-
-  <!-- 漏斗 -->
-  <div class="fnl">
-    <div class="fnl-hd"><div>漏斗环节</div><div>11月 / 12月 到达人数</div><div>环节转化率变动</div></div>
-
-    <div class="fnl-row">
-      <div class="fnl-name">① 首页访问</div>
-      <div class="fnl-bars">
-        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:100%;background:#3a8fd4;opacity:.6"></div></div><span class="fbar-v">19,700</span></div>
-        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:90.8%;background:#3a8fd4"></div></div><span class="fbar-v">17,894</span></div>
-      </div>
-      <div class="fnl-diff"><span class="d-val neg">−9.17%</span><small>UV 流量减少</small></div>
-    </div>
-
-    <div class="fnl-row">
-      <div class="fnl-name">② 详情页浏览</div>
-      <div class="fnl-bars">
-        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:64.81%;background:#5fa8e8;opacity:.6"></div></div><span class="fbar-v">12,767</span></div>
-        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:65.17%;background:#5fa8e8"></div></div><span class="fbar-v">11,662</span></div>
-      </div>
-      <div class="fnl-diff"><span class="d-val pos">+0.36pp</span><small>64.81% → 65.17%</small></div>
-    </div>
-
-    <div class="fnl-row">
-      <div class="fnl-name">③ 加购物车 ⚠️</div>
-      <div class="fnl-bars">
-        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:35.58%;background:#e84855;opacity:.5"></div></div><span class="fbar-v">4,543</span></div>
-        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:34.41%;background:#e84855"></div></div><span class="fbar-v">4,013</span></div>
-      </div>
-      <div class="fnl-diff"><span class="d-val neg">−1.17pp</span><small>35.58% → 34.41%<br>主要拖累节点</small></div>
-    </div>
-
-    <div class="fnl-row">
-      <div class="fnl-name">④ 开始结算</div>
-      <div class="fnl-bars">
-        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:58.88%;background:#34c78a;opacity:.5"></div></div><span class="fbar-v">2,675</span></div>
-        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:59.93%;background:#34c78a"></div></div><span class="fbar-v">2,405</span></div>
-      </div>
-      <div class="fnl-diff"><span class="d-val pos">+1.05pp</span><small>58.88% → 59.93%</small></div>
-    </div>
-
-    <div class="fnl-row">
-      <div class="fnl-name">⑤ 支付完成</div>
-      <div class="fnl-bars">
-        <div class="fbar-row"><span class="fbar-mo">11月</span><div class="fbar-track"><div class="fbar-fill" style="width:49.2%;background:#7db83a;opacity:.5"></div></div><span class="fbar-v">1,316</span></div>
-        <div class="fbar-row"><span class="fbar-mo">12月</span><div class="fbar-track"><div class="fbar-fill" style="width:51.19%;background:#7db83a"></div></div><span class="fbar-v">1,231</span></div>
-      </div>
-      <div class="fnl-diff"><span class="d-val pos">+1.99pp</span><small>49.20% → 51.19%</small></div>
-    </div>
-  </div>
-
-  <!-- 客群切片 -->
-  <div class="two-col" style="margin-top:28px;">
-    <div class="card">
-      <h3>⚠️ 环节 2→3（详情页→加购）客群切片</h3>
-      <p>新客转化率 <b style="color:var(--red)">−1.59pp</b>，体量占比 90%，对大盘贡献了 <b>−143.6%</b> 的拖累；唤醒 / 留存均有改善但体量小。</p>
-      <div class="dt-wrap" style="margin:10px 0 0;border:none;">
-        <table class="dt">
-          <thead><tr><th>客群</th><th>11月CVR</th><th>12月CVR</th><th>变动</th><th>贡献</th></tr></thead>
-          <tbody>
-            <tr><td>唤醒客户</td><td class="r">35.14%</td><td class="r">36.78%</td><td class="r pos">+1.64pp</td><td class="r pos">+12.1%</td></tr>
-            <tr class="hi"><td><b>新客户 ⚠️</b></td><td class="r">35.60%</td><td class="r">34.01%</td><td class="r neg">−1.59pp</td><td class="r neg"><b>−143.6%</b></td></tr>
-            <tr><td>留存客户</td><td class="r">36.24%</td><td class="r">41.44%</td><td class="r pos">+5.20pp</td><td class="r pos">+11.7%</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <h3>✅ 环节 4→5（结算→支付）客群切片</h3>
-      <p>三类客群全面正向；留存客户 <b style="color:var(--green)">+23.64pp</b>，支付体验健康，非当前问题节点。</p>
-      <div class="dt-wrap" style="margin:10px 0 0;border:none;">
-        <table class="dt">
-          <thead><tr><th>客群</th><th>11月CVR</th><th>12月CVR</th><th>变动</th><th>贡献</th></tr></thead>
-          <tbody>
-            <tr><td>唤醒客户</td><td class="r">46.11%</td><td class="r">49.34%</td><td class="r pos">+3.24pp</td><td class="r pos">+5.3%</td></tr>
-            <tr><td>新客户</td><td class="r">49.82%</td><td class="r">51.30%</td><td class="r pos">+1.48pp</td><td class="r pos">+27.7%</td></tr>
-            <tr><td><b>留存客户</b></td><td class="r">30.91%</td><td class="r">54.55%</td><td class="r pos">+23.64pp</td><td class="r pos">+10.7%</td></tr>
-          </tbody>
-        </table>
+      <div class="meta-item">
+        <span class="meta-label">工具</span>
+        <span class="meta-value">Python · Pandas</span>
       </div>
     </div>
   </div>
-
-  <div class="callout ok" style="margin-top:20px;">
-    <b>CVR 小结</b> — 漏斗唯一问题节点是 <b>环节2→3（详情页→加购）</b>，由新客转化率下滑 −1.59pp 拖累。可能原因：商品价格缺乏吸引力 / 详情页体验下降（跳出率 / 停留时长）/ 折扣触发逻辑不足。4→5 环节三类客群全面改善，支付体验无短板。
-  </div>
-</section>
-
-<!-- 04 综合诊断 -->
-<section class="sec">
-  <div class="sec-head"><span class="badge">04</span><h2>综合诊断与下一步验证方向</h2></div>
-
-  <div class="three-col">
-    <div class="card" style="border-top:3px solid var(--red);">
-      <h3 style="color:var(--red)">🔴 流量侧（UV）优先级：高</h3>
-      <p><b>问题：</b>Paid Ads × Discount 新客流失 390 人（19%），Organic × Discount 次之（17%），Discount 跨渠道同步下滑。</p>
-      <p><b>建议验证：</b></p>
-      <p>① 折扣率 / 优惠门槛 12 月是否有调整</p>
-      <p>② Paid Ads 预算/竞价（CPM、CPC、曝光量）</p>
-      <p>③ Discount 广告素材 CTR 对比</p>
-    </div>
-    <div class="card" style="border-top:3px solid var(--red);">
-      <h3 style="color:var(--red)">🔴 转化侧（CVR 2→3）优先级：中</h3>
-      <p><b>问题：</b>新客在详情页→加购转化率 −1.59pp，体量权重大，贡献 −143.6% 的大盘拖累。</p>
-      <p><b>建议验证：</b></p>
-      <p>① 商品详情页 12 月停留时长 / 跳出率</p>
-      <p>② 商品定价 vs 竞品对比</p>
-      <p>③ 折扣展示逻辑是否影响新客加购决策</p>
-    </div>
-    <div class="card" style="border-top:3px solid var(--accent);">
-      <h3>📌 AOV 待补充分析</h3>
-      <p>本表 AOV 环比 −1.06%（¥2,083→¥2,061），贡献 13.35% 损失，影响相对次要。</p>
-      <p>待独立数据集确认：高价 SKU 销售占比是否发生结构变化；是否存在折扣拉低实际客单价的因素。</p>
-    </div>
-  </div>
-
-  <div class="callout" style="margin-top:24px;border-color:var(--navy);background:#eef4fa;">
-    <b>综合结论</b> — 本次 GMV 下滑是<b>以 UV 为主</b>的结构性流量问题，而非转化或客单价的系统性崩盘。Discount Campaign 跨渠道同步下滑，高度指向<b>促销机制吸引力减弱或投放效率下降</b>。CVR 的详情页→加购节点是次要变量，关乎新客体验的长期优化。建议优先调取 <b>Paid Ads Discount Campaign</b> 的素材与投放数据做专项核查，同时补充 AOV 分析数据集。
-  </div>
-</section>
-
-<div class="report-footer">
-  <span>SOURCE: D2C_MARKETING_FUNNEL_DATA.CSV · 120,000 ROWS · 17 COLS</span>
-  <span>NOTEBOOK: GMV_要生成HTML版.IPYNB · 67 CELLS PARSED</span>
 </div>
 
+<div class="page-body">
+
+  <nav class="sidebar">
+    <div class="nav-label">分析目录</div>
+    <ul class="nav-list">
+      <li><a href="#s0">00 · 结论速览</a></li>
+      <li><a href="#s1">01 · 问题定义</a></li>
+      <li><a href="#s2">02 · 三因子拆解</a></li>
+      <li><a href="#s3">03 · CVR 排除链</a></li>
+      <ul class="nav-sub">
+        <li><a href="#s3a">用户结构切片</a></li>
+        <li><a href="#s3b">跨期漏斗对比</a></li>
+        <li><a href="#s3c">折扣敏感度验证</a></li>
+      </ul>
+      <li><a href="#s4">04 · UV 深挖</a></li>
+      <li><a href="#s5">05 · AOV 配角</a></li>
+      <li><a href="#s6">06 · 跨期对比</a></li>
+      <li><a href="#s7">07 · 综合结论</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+
+    <!-- ── S0 Exec Summary ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s0"></span>
+      <div class="section-header">
+        <span class="section-num" style="opacity:1; font-size:10px; letter-spacing:0.18em;">EXEC SUMMARY</span>
+        <span class="section-title">结论速览</span>
+      </div>
+
+      <!-- 四格数字卡 -->
+      <div class="factor-row" style="grid-template-columns:1fr 1fr 1fr 1fr; margin-bottom:16px;">
+        <div class="factor-card negative">
+          <div class="factor-name">GMV 环比</div>
+          <div class="factor-pct" style="font-size:20px;">−7.45%</div>
+          <div class="factor-desc">11→12月<br>¥2,741,498 → ¥2,537,147</div>
+        </div>
+        <div class="factor-card negative">
+          <div class="factor-name">UV · 主因</div>
+          <div class="factor-pct" style="font-size:20px;">−9.17%</div>
+          <div class="factor-desc">19,700 → 17,894<br>贡献下跌 122.99%</div>
+        </div>
+        <div class="factor-card positive">
+          <div class="factor-name">CVR · 正向对冲</div>
+          <div class="factor-pct" style="font-size:20px;">+2.98%</div>
+          <div class="factor-desc">6.68% → 6.88%<br>贡献 +36.34%</div>
+        </div>
+        <div class="factor-card neutral">
+          <div class="factor-name">AOV · 次要因子</div>
+          <div class="factor-pct" style="font-size:20px;">−1.06%</div>
+          <div class="factor-desc">¥2,083 → ¥2,061<br>贡献下跌 13.35%</div>
+        </div>
+      </div>
+
+      <!-- 核心诊断 -->
+      <div class="finding">
+        <div class="finding-label">核心诊断</div>
+        <p><strong>UV 流量下滑是本次 GMV 下降的绝对主因，贡献了 122.99% 的下跌量</strong>，且流量损失高度集中在 <strong>Paid Ads × Discount Campaign</strong> 的新客（流失 390 人，贡献渠道总下跌 39.39%）。CVR 的小幅改善（+0.20pp）部分对冲了压力，但体量不足以抵消 UV 的塌陷。</p>
+      </div>
+
+      <!-- 根因链 -->
+      <div class="card">
+        <div class="card-label">根因链</div>
+        <p style="font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mid); line-height:2;">
+          GMV −7.45%
+          &nbsp;→&nbsp; UV 是主因（−123%）
+          &nbsp;→&nbsp; 新客流失（贡献 111%）
+          &nbsp;→&nbsp; Paid Ads 渠道最大（39%）
+          &nbsp;→&nbsp; Discount Campaign（−390 人，19%）
+          &nbsp;→&nbsp; 获客侧问题（需广告数据验证）
+        </p>
+      </div>
+
+      <!-- 跨期对比摘要 -->
+      <div class="card">
+        <div class="card-label">跨期对比：品牌 GMV 运作规律</div>
+        <p>与 8→9 月增长期对比：好月份 CVR 主驱动（+122%）盖过 UV 拖累（−33%），差月份 UV 拖累（−123%）远超 CVR 对冲（+36%）。<strong>这个品牌 GMV 走势的核心变量是流量获取能力。</strong></p>
+      </div>
+
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S1 问题定义 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s1"></span>
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <span class="section-title">问题定义</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">背景</div>
+        <p>7–12 月 GMV 走势如下：7 月最高（基线），8 月微跌，<strong>9 月回升</strong>（好月份），10 月持平，11–12 月连续下滑，12 月降幅最大（-7.45%）且绝对值最低。</p>
+        <p>分析目标：12 月 GMV 下滑，原因是流量问题、转化问题，还是客单价问题？同时选取 9 月作为"好月份"基准，用于跨期对比。7 月虽然 GMV 最高，但 7 月之前没有历史数据，无法构建用户分类的时间基准，故排除。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">数据说明与处理</div>
+        <p>原始数据为用户行为日志，每行是一次访问记录，同一用户同月可能有多行（多渠道、多日期）。直接 <code>count()</code> 统计 UV 会把<strong>行为点击次数误算为用户人数</strong>，导致 UV 严重虚高。</p>
+        <p>修正方案：漏斗各步骤先 <code>groupby('user_id').max()</code> 取用户级别最大值（该用户这个月是否曾到达该步骤），再 <code>sum()</code> 得到去重人头数。UV 用 <code>nunique()</code>。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · UV 算成了行为点击数</div>
+        <p>最初用 <code>count()</code> 统计 UV，实际上是在统计行数而非用户数，同一用户多次访问被重复计入。发现后改为 <code>nunique()</code>，同时对漏斗各步骤改用 <code>groupby → max → sum</code> 的去重逻辑，确保每个用户在每个步骤只计一次。</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S2 三因子拆解 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s2"></span>
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <span class="section-title">连锁替代法拆解三因子</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">方法说明</div>
+        <p>GMV = UV × CVR × AOV。三个因子在两个月之间同时变化，连锁替代法每次只替换一个因子，其余保持基期（11 月）值不变，通过前后差额剥离每个因子的纯贡献，交叉项被顺序分摊。</p>
+      </div>
+
+      <div class="factor-row">
+        <div class="factor-card negative">
+          <div class="factor-name">UV · 流量</div>
+          <div class="factor-pct">−123%</div>
+          <div class="factor-desc">主拖累<br>损失 251,327 元</div>
+        </div>
+        <div class="factor-card positive">
+          <div class="factor-name">CVR · 转化率</div>
+          <div class="factor-pct">+36%</div>
+          <div class="factor-desc">正向对冲<br>拉回 74,255 元</div>
+        </div>
+        <div class="factor-card negative">
+          <div class="factor-name">AOV · 客单价</div>
+          <div class="factor-pct">−13%</div>
+          <div class="factor-desc">次要拖累<br>损失 27,279 元</div>
+        </div>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">初步结论</div>
+        <p>UV 是压倒性的拖累主因，CVR 微升形成部分对冲但远不够，AOV 也在拖累。<strong>下一步需要分别验证 CVR 是否真的有问题，然后再聚焦 UV。</strong></p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">chain_substitution.py</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)"><span class="toggle-icon">▾</span> 收起</button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="var">nov</span> <span class="op">=</span> <span class="var">monthly_analysis</span>[<span class="var">monthly_analysis</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="st">'2025-11'</span>].<span class="fn">iloc</span>[<span class="num">0</span>]
+<span class="var">dec</span> <span class="op">=</span> <span class="var">monthly_analysis</span>[<span class="var">monthly_analysis</span>[<span class="st">'month'</span>] <span class="op">==</span> <span class="st">'2025-12'</span>].<span class="fn">iloc</span>[<span class="num">0</span>]
+
+<span class="var">total_gmv_change</span> <span class="op">=</span> <span class="var">dec</span>[<span class="st">'gmv'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'gmv'</span>]  <span class="cm"># -204,351 元</span>
+
+<span class="cm"># 每次只换一个因子，其余保持 11 月基期值</span>
+<span class="var">uv_effect</span>  <span class="op">=</span> (<span class="var">dec</span>[<span class="st">'uv'</span>]  <span class="op">-</span> <span class="var">nov</span>[<span class="st">'uv'</span>])  <span class="op">*</span> <span class="var">nov</span>[<span class="st">'crv'</span>] <span class="op">*</span> <span class="var">nov</span>[<span class="st">'aov'</span>]
+<span class="var">crv_effect</span> <span class="op">=</span> <span class="var">dec</span>[<span class="st">'uv'</span>] <span class="op">*</span> (<span class="var">dec</span>[<span class="st">'crv'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'crv'</span>]) <span class="op">*</span> <span class="var">nov</span>[<span class="st">'aov'</span>]
+<span class="var">aov_effect</span> <span class="op">=</span> <span class="var">dec</span>[<span class="st">'uv'</span>] <span class="op">*</span>  <span class="var">dec</span>[<span class="st">'crv'</span>] <span class="op">*</span> (<span class="var">dec</span>[<span class="st">'aov'</span>] <span class="op">-</span> <span class="var">nov</span>[<span class="st">'aov'</span>])
+
+<span class="cm"># 各因子贡献率（三者加总验证等于 100%）</span>
+<span class="var">uv_contribution</span>  <span class="op">=</span> <span class="var">uv_effect</span>  <span class="op">/</span> <span class="var">total_gmv_change</span>  <span class="cm"># 122.99%</span>
+<span class="var">crv_contribution</span> <span class="op">=</span> <span class="var">crv_effect</span> <span class="op">/</span> <span class="var">total_gmv_change</span>  <span class="cm"># -36.34%</span>
+<span class="var">aov_contribution</span> <span class="op">=</span> <span class="var">aov_effect</span> <span class="op">/</span> <span class="var">total_gmv_change</span>  <span class="cm"># 13.35%</span></code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S3 CVR 排除链 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s3"></span>
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <span class="section-title">CVR 排除链</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">为什么先排除 CVR</div>
+        <p>连锁替代显示 CVR 微升（+36% 正向贡献），但"微升"不代表 CVR 没有内部问题——它可能在某些客群或某些漏斗环节上存在结构性恶化，只是被整体数字掩盖了。在聚焦 UV 之前，需要先把 CVR 问题彻底排除干净。</p>
+        <p>排除链分三步，每步锁定一个可能的解释方向。</p>
+      </div>
+
+      <!-- Step 1 -->
+      <span class="section-anchor" id="s3a"></span>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-label">步骤一 · 用户结构切片</div>
+        <p>如果 CVR 升高是因为"高质量老用户占比提升"（结构性迁移），那么切开各客群看，老用户 CVR 应该明显高于新客，且 12 月老用户占比应该比 11 月更高。</p>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>客群</th>
+            <th>UV</th>
+            <th>UV 占比</th>
+            <th>CVR</th>
+            <th>大盘贡献%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>新客户</td><td>15,989</td><td>89.4%</td><td>6.80%</td><td>88.4%</td></tr>
+          <tr><td>唤醒客户</td><td>1,522</td><td>8.5%</td><td>7.42%</td><td>9.2%</td></tr>
+          <tr><td>留存客户</td><td>383</td><td>2.1%</td><td>7.83%</td><td>2.4%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="finding">
+        <div class="finding-label">排除结果</div>
+        <p>三个客群 CVR 差距极小（6.8%–7.8%），新客依然占 <strong>89%</strong>，没有发生结构性迁移。CVR 升高不是因为老用户占比提升。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 防数据穿越的用户分类</div>
+        <p>最初直接用全量数据判断用户"是否曾经来过"，隐患是如果函数被复用到其他月份，可能把未来数据混入历史判断。解决方案是函数内部先切片——<strong>只保留 target_month 及更早的记录</strong>再做判断，从根本上切断未来数据干扰。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">user_tagging.py · 防数据穿越的用户分类</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)"><span class="toggle-icon">▾</span> 收起</button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="kw">def</span> <span class="fn">get_monthly_customer_tags</span>(<span class="var">df</span>, <span class="var">target_month</span>, <span class="var">last_month</span>):
+    <span class="cm"># 关键：先切片切断未来数据</span>
+    <span class="var">history_df</span> <span class="op">=</span> <span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">&lt;=</span> <span class="var">target_month</span>]
+    <span class="var">target_users</span>     <span class="op">=</span> <span class="fn">set</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">==</span> <span class="var">target_month</span>][<span class="st">"user_id"</span>])
+    <span class="var">last_month_users</span>  <span class="op">=</span> <span class="fn">set</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>] <span class="op">==</span> <span class="var">last_month</span>][<span class="st">"user_id"</span>])
+    <span class="var">before_last_users</span> <span class="op">=</span> <span class="fn">set</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">"month"</span>]  <span class="op">&lt;</span> <span class="var">last_month</span>][<span class="st">"user_id"</span>])
+
+    <span class="var">res</span> <span class="op">=</span> []
+    <span class="kw">for</span> <span class="var">uid</span> <span class="kw">in</span> <span class="var">target_users</span>:
+        <span class="kw">if</span>   <span class="var">uid</span> <span class="kw">not in</span> <span class="var">last_month_users</span> <span class="kw">and</span> <span class="var">uid</span> <span class="kw">not in</span> <span class="var">before_last_users</span>: <span class="var">tag</span> <span class="op">=</span> <span class="st">"新客户"</span>
+        <span class="kw">elif</span> <span class="var">uid</span> <span class="kw">in</span> <span class="var">last_month_users</span>:  <span class="var">tag</span> <span class="op">=</span> <span class="st">"留存客户"</span>
+        <span class="kw">else</span>:                           <span class="var">tag</span> <span class="op">=</span> <span class="st">"唤醒客户"</span>
+        <span class="var">res</span>.<span class="fn">append</span>({<span class="st">"month"</span>: <span class="var">target_month</span>, <span class="st">"user_id"</span>: <span class="var">uid</span>, <span class="st">"customer_type"</span>: <span class="var">tag</span>})
+    <span class="kw">return</span> <span class="var">pd</span>.<span class="fn">DataFrame</span>(<span class="var">res</span>)</code></pre>
+      </div>
+
+      <!-- Step 2 -->
+      <span class="section-anchor" id="s3b"></span>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-label">步骤二 · 与好月份（9月）漏斗对比</div>
+        <p>如果 CVR 有系统性恶化，好月份和差月份的各漏斗环节转化率应该有明显差距。这里直接比绝对转化率，不使用连锁替代——不需要基准，只看"两个月漏斗有多不一样"。</p>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr><th>环节</th><th>9月</th><th>12月</th><th>差值 (ppt)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1→2 首页→详情页</td><td>65.46%</td><td>65.17%</td><td class="diff-neg">−0.29</td></tr>
+          <tr><td>2→3 详情页→加购</td><td>35.19%</td><td>34.41%</td><td class="diff-neg">−0.78</td></tr>
+          <tr><td>3→4 加购→结算</td><td>60.83%</td><td>59.93%</td><td class="diff-neg">−0.90</td></tr>
+          <tr><td>4→5 结算→支付</td><td>50.84%</td><td>51.19%</td><td class="diff-pos">+0.34</td></tr>
+          <tr class="diff-row"><td>整体 CVR</td><td>7.12%</td><td>6.88%</td><td class="diff-neg">−0.24</td></tr>
+        </tbody>
+      </table>
+
+      <div class="finding">
+        <div class="finding-label">排除结果</div>
+        <p>所有环节差距均在 <strong>1 ppt 以内</strong>，好月份和差月份的漏斗转化能力几乎相同。CVR 没有发生系统性恶化。</p>
+      </div>
+
+      <!-- Step 3 -->
+      <span class="section-anchor" id="s3c"></span>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-label">步骤三 · 折扣敏感度验证</div>
+        <p>Paid Ads × Discount Campaign 新客大量减少，一种可能的解释是：这批人进来了，但因为价格敏感（冲着折扣来的）所以不买，最终拖低了 CVR。用 9 月和 12 月新客的折扣使用率来检验这个假设。</p>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr><th></th><th>9月新客</th><th>12月新客</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>人数</td><td>19,080</td><td>15,989</td></tr>
+          <tr><td>折扣使用率</td><td>3.75%</td><td>3.67%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="finding">
+        <div class="finding-label">假设被推翻</div>
+        <p>两个月新客折扣使用率几乎相同，说明 <strong>12 月新客并不比 9 月更价格敏感</strong>。"来了不买"的解释被数据推翻。问题不在 CVR，而在于这批人根本没来——是获客侧的问题。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">discount_validation.py · 折扣敏感度验证</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)"><span class="toggle-icon">▾</span> 收起</button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="cm"># 锁定 9 月和 12 月的新客子集</span>
+<span class="var">df_new_9</span>  <span class="op">=</span> <span class="var">pd</span>.<span class="fn">merge</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>]<span class="op">==</span><span class="st">'2025-09'</span>], <span class="var">tags_9</span>[<span class="var">tags_9</span>[<span class="st">'customer_type'</span>]<span class="op">==</span><span class="st">'新客户'</span>],  <span class="var">on</span><span class="op">=</span>[<span class="st">'user_id'</span>,<span class="st">'month'</span>], <span class="var">how</span><span class="op">=</span><span class="st">'inner'</span>)
+<span class="var">df_new_12</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">merge</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>]<span class="op">==</span><span class="st">'2025-12'</span>], <span class="var">tags_12</span>[<span class="var">tags_12</span>[<span class="st">'customer_type'</span>]<span class="op">==</span><span class="st">'新客户'</span>], <span class="var">on</span><span class="op">=</span>[<span class="st">'user_id'</span>,<span class="st">'month'</span>], <span class="var">how</span><span class="op">=</span><span class="st">'inner'</span>)
+
+<span class="cm"># 去重到用户级别再算折扣使用率</span>
+<span class="kw">for</span> <span class="var">label</span>, <span class="var">df_m</span> <span class="kw">in</span> [(<span class="st">'9月新客'</span>, <span class="var">df_new_9</span>), (<span class="st">'12月新客'</span>, <span class="var">df_new_12</span>)]:
+    <span class="var">user_discount</span> <span class="op">=</span> <span class="var">df_m</span>.<span class="fn">groupby</span>(<span class="st">'user_id'</span>)[<span class="st">'discount_applied'</span>].<span class="fn">max</span>()
+    <span class="var">rate</span> <span class="op">=</span> <span class="var">user_discount</span>.<span class="fn">sum</span>() <span class="op">/</span> <span class="fn">len</span>(<span class="var">user_discount</span>)
+    <span class="fn">print</span>(<span class="st">f"{label}: 折扣使用率 {rate*100:.2f}%"</span>)
+<span class="cm"># 输出：9月新客 3.75%  /  12月新客 3.67%  → 几乎相同，假设推翻</span></code></pre>
+      </div>
+
+      <div class="finding" style="margin-top:20px;">
+        <div class="finding-label">CVR 排除链结论</div>
+        <p>三步验证完成，CVR 问题彻底关闭：<strong>用户结构没有迁移、漏斗各环节稳定、新客不存在价格敏感性差异。</strong> CVR 微升是正常波动，不是实质性变化。问题完全在 UV 侧。</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S4 UV 深挖 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s4"></span>
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">UV 深挖：渠道 × 活动归因</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">分析思路</div>
+        <p>UV 下滑中，用户类型拆解显示<strong>新客流失是主要来源</strong>（贡献 111%，留存客户贡献 4%）。新客流失意味着获客侧出了问题，下一步锁定新客子集，下钻到渠道维度，再往下到 channel × campaign_type 二维交叉。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 渠道维度新客人数膨胀</div>
+        <p>渠道维度加总的新客人数（2,046）比 UV 层的新客流失人数（2,007）多。排查后发现：同一个新客用户当月可能从多个渠道进来，在渠道维度被计入多次。这个现象本身合理——用户可以多渠道触达，但<strong>渠道维度的数字只用于分析各渠道的相对贡献，不能用于验证新客总人数</strong>。</p>
+      </div>
+
+      <div class="pitfall">
+        <div class="pitfall-label">遇到的问题 · 下钻逻辑的口径一致性</div>
+        <p>渠道层和 campaign 层都锁定"新客户"子集分析。下钻时必须复用同一张 <code>df_all_new</code>（已 inner join 过用户标签），不能重新过滤主表——否则 campaign 层引入全量用户，数字会比渠道层膨胀，两层无法对齐。</p>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">渠道层结论</div>
+        <p>新客下降贡献从高到低：<strong>Paid Ads（39.4%）→ Organic（36.4%）→ Social（15.4%）→ Email（8.9%）</strong>。Paid Ads 是最大的单一渠道拖累。</p>
+      </div>
+
+      <div class="finding">
+        <div class="finding-label">Campaign 层结论</div>
+        <p>下钻到 channel × campaign_type 后，<strong>Paid Ads × Discount（−390 人，贡献 19%）</strong> 是单一最大下滑来源，其次是 Organic × Discount（−357 人，17.4%）。Discount 类活动在多个渠道都出现下滑，是跨渠道性的共性问题。</p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">分析边界</div>
+        <p>获客量下降的深层原因（预算不足、广告素材效率下降、CTR/CPC 恶化、促销吸引力降低）需要<strong>广告投放数据</strong>才能验证，现有漏斗数据到此为止。</p>
+      </div>
+
+      <div class="code-block-wrapper">
+        <div class="code-block-header">
+          <span class="code-block-title">channel_attribution.py · 渠道×活动双层下钻</span>
+          <div class="code-block-toggle">
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+            <button class="toggle-btn" onclick="toggleCode(this)"><span class="toggle-icon">▾</span> 收起</button>
+          </div>
+        </div>
+        <pre class="code-content"><code><span class="cm"># 锁定新客子集（inner join 保持口径）</span>
+<span class="var">df_all_new</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">concat</span>([
+    <span class="var">pd</span>.<span class="fn">merge</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>]<span class="op">==</span><span class="st">'2025-11'</span>], <span class="var">tags_11</span>[<span class="var">tags_11</span>[<span class="st">'customer_type'</span>]<span class="op">==</span><span class="st">'新客户'</span>], <span class="var">on</span><span class="op">=</span>[<span class="st">'user_id'</span>,<span class="st">'month'</span>], <span class="var">how</span><span class="op">=</span><span class="st">'inner'</span>),
+    <span class="var">pd</span>.<span class="fn">merge</span>(<span class="var">df</span>[<span class="var">df</span>[<span class="st">'month'</span>]<span class="op">==</span><span class="st">'2025-12'</span>], <span class="var">tags_12</span>[<span class="var">tags_12</span>[<span class="st">'customer_type'</span>]<span class="op">==</span><span class="st">'新客户'</span>], <span class="var">on</span><span class="op">=</span>[<span class="st">'user_id'</span>,<span class="st">'month'</span>], <span class="var">how</span><span class="op">=</span><span class="st">'inner'</span>)
+])
+
+<span class="cm"># 下钻到 channel × campaign_type（复用同一张表，保持口径一致）</span>
+<span class="var">pivot</span> <span class="op">=</span> <span class="var">pd</span>.<span class="fn">pivot_table</span>(
+    <span class="var">df_all_new</span>,
+    <span class="var">index</span><span class="op">=</span>[<span class="st">'channel'</span>, <span class="st">'campaign_type'</span>],
+    <span class="var">columns</span><span class="op">=</span><span class="st">'month'</span>, <span class="var">values</span><span class="op">=</span><span class="st">'user_id'</span>,
+    <span class="var">aggfunc</span><span class="op">=</span><span class="st">'nunique'</span>, <span class="var">fill_value</span><span class="op">=</span><span class="num">0</span>
+)
+<span class="var">pivot</span>[<span class="st">'diff'</span>] <span class="op">=</span> <span class="var">pivot</span>[<span class="st">'2025-12'</span>] <span class="op">-</span> <span class="var">pivot</span>[<span class="st">'2025-11'</span>]
+<span class="var">pivot</span>.<span class="fn">sort_values</span>(<span class="st">'diff'</span>, <span class="var">ascending</span><span class="op">=</span><span class="kw">True</span>)  <span class="cm"># 最严重的在最上面</span></code></pre>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S5 AOV ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s5"></span>
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">AOV 配角说明</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">在本项目中的角色</div>
+        <p>AOV 在 11→12 月贡献了 −13% 的拖累，量级远小于 UV（−123%），是配角。在跨期对比中，AOV 在好月份（8→9月）是 +11% 的助力，在差月份是 −13% 的阻力——方向随 GMV 走势同向变化，说明 AOV 可能是结果的一部分，而非独立原因。</p>
+        <p>AOV 的深层拆解（AUR × IPT）在独立的 AOV 专项分析中完成，结论是 IPT（购买件数）下降是主因，具体表现为中单向单件订单迁移。但由于该分析使用的数据表与本项目不同，结论仅作参考方向，不在本项目内直接引用。</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S6 跨期对比 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s6"></span>
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">跨期对比：8→9月增长期</span>
+      </div>
+
+      <div class="card">
+        <div class="card-label">为什么做这个对比</div>
+        <p>单看 12 月下滑只能说明"出了问题"，把好月份和差月份的驱动因子并排对比，才能看出这个品牌 GMV 的运作规律——到底是什么因子在决定涨跌。</p>
+      </div>
+
+      <div class="factor-row">
+        <div class="factor-card positive">
+          <div class="factor-name">UV · 8→9月</div>
+          <div class="factor-pct">−33%</div>
+          <div class="factor-desc">拖累<br>−40,232 元</div>
+        </div>
+        <div class="factor-card positive">
+          <div class="factor-name">CVR · 8→9月</div>
+          <div class="factor-pct">+122%</div>
+          <div class="factor-desc">主驱动<br>+147,972 元</div>
+        </div>
+        <div class="factor-card positive">
+          <div class="factor-name">AOV · 8→9月</div>
+          <div class="factor-pct">+11%</div>
+          <div class="factor-desc">助力<br>+13,379 元</div>
+        </div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr><th>因子</th><th>8→9月（GMV +12万）</th><th>11→12月（GMV −20万）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UV</td><td class="diff-neg">−33%（拖累）</td><td class="diff-neg">−123%（主拖累）</td></tr>
+          <tr><td>CVR</td><td class="diff-pos">+122%（主驱动）</td><td class="diff-pos">+36%（对冲）</td></tr>
+          <tr><td>AOV</td><td class="diff-pos">+11%（助力）</td><td class="diff-neg">−13%（阻力）</td></tr>
+        </tbody>
+      </table>
+
+      <div class="finding">
+        <div class="finding-label">运作规律</div>
+        <p>两段时期 UV 和 CVR 的<strong>方向一致</strong>（UV 拖累、CVR 正向），但<strong>力量对比不同</strong>决定了结果：好月份 CVR+AOV 合力（+133%）盖过 UV 拖累（−33%），GMV 净上升；差月份 UV 拖累（−123%）远超 CVR 对冲（+36%），且 AOV 转为阻力，GMV 净下滑。</p>
+        <p><strong>这个品牌的 GMV 走势由 UV 和 CVR 的力量对比决定。</strong>流量获取能力的变化是核心变量。</p>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ── S7 综合结论 ── -->
+    <section class="analysis-section">
+      <span class="section-anchor" id="s7"></span>
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <span class="section-title">综合结论</span>
+      </div>
+
+      <div class="step-chain">
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot">1</div><div class="step-connector"></div></div>
+          <div class="step-body">
+            <div class="step-title">连锁替代锁定 UV 是主因</div>
+            <div class="step-desc">UV 贡献 −123%，CVR +36%，AOV −13%。GMV 下滑由 UV 主导。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot">2</div><div class="step-connector"></div></div>
+          <div class="step-body">
+            <div class="step-title">CVR 三步排除</div>
+            <div class="step-desc">用户结构稳定（新客占 89%）、漏斗各环节与 9 月差距在 1ppt 内、折扣敏感度验证无差异。CVR 微升是正常波动，问题不在转化侧。</div>
+            <span class="step-result">CVR 关闭</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot">3</div><div class="step-connector"></div></div>
+          <div class="step-body">
+            <div class="step-title">UV 下钻锁定根因</div>
+            <div class="step-desc">新客流失是 UV 下滑主因（贡献 111%）。渠道层：Paid Ads 贡献最大（39%）。Campaign 层：Paid Ads × Discount 是单一最大下滑来源（−390 人，19%）。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot">4</div><div class="step-connector"></div></div>
+          <div class="step-body">
+            <div class="step-title">分析边界</div>
+            <div class="step-desc">获客量下降的具体原因（预算、素材效率、CTR/CPC）需要广告投放数据验证；AOV 深层拆解数据来源不同，结论仅作参考方向。</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-line"><div class="step-dot">5</div><div class="step-connector"></div></div>
+          <div class="step-body">
+            <div class="step-title">跨期对比揭示规律</div>
+            <div class="step-desc">好月份 CVR 主驱动盖过 UV 拖累，差月份 UV 拖累超过 CVR 对冲。这个品牌 GMV 走势的核心变量是流量获取能力。</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
 </div>
+
+<footer>
+  数据分析作品集 · <a href="index.html" style="color:var(--muted);">返回首页</a>
+</footer>
+
+<script>
+function toggleCode(btn) {
+  const pre = btn.closest('.code-block-wrapper').querySelector('pre.code-content');
+  const icon = btn.querySelector('.toggle-icon');
+  const isCollapsed = pre.classList.toggle('collapsed');
+  icon.classList.toggle('collapsed', isCollapsed);
+  btn.lastChild.textContent = isCollapsed ? ' 展开' : ' 收起';
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-block-wrapper').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(() => {
+    btn.textContent = '已复制 ✓';
+    setTimeout(() => btn.textContent = '复制', 1800);
+  });
+}
+
+const sections = document.querySelectorAll('.analysis-section');
+const navLinks = document.querySelectorAll('.nav-list a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.querySelector('.section-anchor')?.id;
+      navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+
 </body>
 </html>
