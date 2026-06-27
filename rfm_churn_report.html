@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户流失分析报告 · Superstore 2017</title>
+<style>
+  :root {
+    --bg: #0e0e12;
+    --bg2: #16161c;
+    --bg3: #1e1e26;
+    --border: rgba(255,255,255,0.08);
+    --text: #e8e6e0;
+    --muted: #7a7880;
+    --amber: #e8a020;
+    --amber-dim: rgba(232,160,32,0.12);
+    --teal: #1da98a;
+    --teal-dim: rgba(29,169,138,0.12);
+    --coral: #e05252;
+    --coral-dim: rgba(224,82,82,0.12);
+    --purple: #8b7cf8;
+    --purple-dim: rgba(139,124,248,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── Layout ── */
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 28px; }
+
+  /* ── Hero ── */
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding: 64px 0 48px;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    color: #fff;
+  }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .stat {
+    background: var(--bg2);
+    padding: 20px 18px;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label { font-size: 12px; color: var(--muted); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-num.teal  { color: var(--teal); }
+  .stat-num.coral { color: var(--coral); }
+  .stat-num.white { color: #fff; }
+
+  /* ── Section ── */
+  section { padding: 52px 0; border-bottom: 1px solid var(--border); }
+  .section-eyebrow {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  section h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+    max-width: 620px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 24px;
+  }
+  .card-title {
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* ── Segmentation table ── */
+  .seg-table { width: 100%; border-collapse: collapse; }
+  .seg-table th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    font-weight: 500;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .seg-table td {
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .seg-table tr:last-child td { border-bottom: none; }
+  .seg-table .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .tag-amber { background: var(--amber-dim); color: var(--amber); }
+  .tag-teal  { background: var(--teal-dim);  color: var(--teal); }
+  .tag-coral { background: var(--coral-dim); color: var(--coral); }
+  .tag-gray  { background: rgba(255,255,255,0.06); color: var(--muted); }
+
+  /* ── Bar chart ── */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-label { font-size: 13px; min-width: 130px; color: var(--text); }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .bar-val { font-size: 13px; color: var(--muted); min-width: 42px; text-align: right; }
+
+  /* ── Quarter grid ── */
+  .quarter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .q-box {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  .q-box .q-label { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .q-box .q-num { font-size: 24px; font-weight: 600; line-height: 1; }
+  .q-box .q-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .q-box.highlight { border-color: var(--coral); background: var(--coral-dim); }
+  .q-box.highlight .q-num { color: var(--coral); }
+  .q-box.zero { border-color: rgba(255,255,255,0.04); }
+  .q-box.zero .q-num { color: rgba(255,255,255,0.2); }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute;
+    left: -21px;
+    top: 5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg3);
+    border: 1.5px solid var(--muted);
+  }
+  .tl-dot.active { border-color: var(--amber); background: var(--amber); }
+  .tl-date { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .tl-text { font-size: 14px; }
+
+  /* ── Threshold visual ── */
+  .threshold-bar {
+    position: relative;
+    height: 48px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    overflow: visible;
+    margin: 28px 0 20px;
+  }
+  .th-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    border-radius: 6px;
+  }
+  .th-marker {
+    position: absolute;
+    top: -8px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .th-marker-line {
+    width: 2px;
+    height: 64px;
+    border-left: 2px dashed;
+  }
+  .th-marker-label {
+    font-size: 11px;
+    white-space: nowrap;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ── Callout box ── */
+  .callout {
+    border-left: 3px solid var(--amber);
+    background: var(--amber-dim);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 24px 0;
+  }
+  .callout.teal { border-color: var(--teal); background: var(--teal-dim); }
+  .callout.coral { border-color: var(--coral); background: var(--coral-dim); }
+  .callout p { font-size: 14px; line-height: 1.6; }
+  .callout strong { color: #fff; font-weight: 600; }
+
+  /* ── Limitation box ── */
+  .limitation {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .limitation strong { color: var(--text); }
+
+  /* ── Strategy card ── */
+  .strategy {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .strategy-header {
+    background: var(--amber-dim);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber);
+    letter-spacing: .04em;
+  }
+  .strategy-body { padding: 0; }
+  .strategy-row {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .strategy-row:last-child { border-bottom: none; }
+  .strategy-key {
+    min-width: 130px;
+    padding: 14px 16px;
+    color: var(--muted);
+    font-size: 13px;
+    border-right: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .strategy-val { padding: 14px 16px; }
+
+  /* ── Case study ── */
+  .case-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .case-id {
+    font-family: monospace;
+    font-size: 13px;
+    background: var(--purple-dim);
+    color: var(--purple);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(139,124,248,0.2);
+  }
+  .case-badge {
+    font-size: 11px;
+    color: var(--coral);
+    background: var(--coral-dim);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  /* ── Comparison table ── */
+  .compare { width: 100%; border-collapse: collapse; }
+  .compare th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare td {
+    padding: 12px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare tr:last-child td { border-bottom: none; }
+  .compare .highlight-row td { background: rgba(29,169,138,0.05); }
+
+  /* ── Footer ── */
+  footer {
+    padding: 40px 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 600px) {
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .quarter-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Superstore · 客户流失分析报告</div>
+    <h1>17个高价值客户<br>为何在2018年消失？</h1>
+    <p class="hero-sub">数据范围：2017年全年 · 验证窗口：2018年 · 分析维度：RM模型 / 品类归因 / 时间拐点 / 再激活策略</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num white">635</div>
+        <div class="stat-label">2017年活跃客户</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num amber">112</div>
+        <div class="stat-label">重要挽留客户</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num coral">17</div>
+        <div class="stat-label">2018年真实流失</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num teal">150天</div>
+        <div class="stat-label">建议预警阈值</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Section 1: RM 模型 ── -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">第一步</div>
+    <h2>RM 模型构建</h2>
+    <p class="section-desc">使用2017年全年订单，以2017-12-31为快照日期，对 Recency 和 Monetary 各分3档，得到四类客户分层。Frequency 因数据仅覆盖一年（中位数仅2单）区分度不足，暂不纳入。</p>
+
+    <div class="card" style="margin-bottom: 16px;">
+      <div class="card-title">客户分层结果</div>
+      <table class="seg-table">
+        <thead>
+          <tr>
+            <th>客群</th>
+            <th>R_score</th>
+            <th>M_score</th>
+            <th>人数</th>
+            <th>占比</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag tag-teal">重要价值客户</span></td>
+            <td>≥ 2</td>
+            <td>≥ 2</td>
+            <td>311</td>
+            <td>49.0%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-amber">重要挽留客户</span></td>
+            <td>&lt; 2</td>
+            <td>≥ 2</td>
+            <td>112</td>
+            <td>17.6%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-gray">一般价值客户</span></td>
+            <td>≥ 2</td>
+            <td>&lt; 2</td>
+            <td>112</td>
+            <td>17.6%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-coral">流失低价值客户</span></td>
+            <td>&lt; 2</td>
+            <td>&lt; 2</td>
+            <td>100</td>
+            <td>15.7%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Recency 分布（距快照天数）</div>
+        <div class="bar-row">
+          <span class="bar-label">R=1（沉默最久）</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--coral)"></div></div>
+          <span class="bar-val">117–362天</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">R=2</span>
+          <div class="bar-track"><div class="bar-fill" style="width:55%;background:var(--amber)"></div></div>
+          <span class="bar-val">44–117天</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">R=3（最近）</span>
+          <div class="bar-track"><div class="bar-fill" style="width:20%;background:var(--teal)"></div></div>
+          <span class="bar-val">0–43天</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Monetary 分布（年度消费额）</div>
+        <div class="bar-row">
+          <span class="bar-label">M=1（低消费）</span>
+          <div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--muted)"></div></div>
+          <span class="bar-val">$2–192</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">M=2</span>
+          <div class="bar-track"><div class="bar-fill" style="width:45%;background:var(--amber)"></div></div>
+          <span class="bar-val">$192–915</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">M=3（高消费）</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--teal)"></div></div>
+          <span class="bar-val">$919–18,344</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 2: 流失验证 ── -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">第二步</div>
+    <h2>用2018年数据验证真实流失</h2>
+    <p class="section-desc">112个重要挽留客户中，2018年全年无任何订单的才算"真实流失"。结果揭示了一个关键问题：大多数人只是购买周期长，并非真正离开。</p>
+
+    <div class="grid-2" style="margin-bottom: 20px;">
+      <div class="card" style="text-align:center; padding: 32px 24px;">
+        <div style="font-size:48px; font-weight:700; color:var(--coral); line-height:1;">17</div>
+        <div style="font-size:14px; color:var(--muted); margin-top:8px;">2018年真实流失 <span style="color:var(--coral);">15.2%</span></div>
+      </div>
+      <div class="card" style="text-align:center; padding: 32px 24px;">
+        <div style="font-size:48px; font-weight:700; color:var(--teal); line-height:1;">95</div>
+        <div style="font-size:14px; color:var(--muted); margin-top:8px;">2018年回流 <span style="color:var(--teal);">84.8%</span></div>
+      </div>
+    </div>
+
+    <div class="callout coral">
+      <p><strong>模型局限：</strong>原始 R 阈值对此数据集过于宽松。R_score=1 的范围跨越 117–362 天（245天跨度），将"购买周期长"和"真正流失"混为一谈。后续应结合品类差异化调整 R 阈值。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 3: 流失原因 ── -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">第三步</div>
+    <h2>流失原因拆解</h2>
+    <p class="section-desc">从品类偏好、个案轨迹、时间拐点三个维度对17个真实流失客户进行归因分析。</p>
+
+    <!-- 3a: 品类 -->
+    <div style="margin-bottom: 32px;">
+      <h3 style="font-size:16px; font-weight:600; color:#fff; margin-bottom:8px;">3a · 品类偏好分析</h3>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:20px;">Office Supplies 占比最高（48.9%），但细看 Sub-Category 后发现，主力品类是 Binders（10单）和 Storage（9单），均为半耐用品，而非真正意义上的消耗品。</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Category 占比（流失客户）</div>
+          <div class="bar-row">
+            <span class="bar-label">Office Supplies</span>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--amber)"></div></div>
+            <span class="bar-val">48.9%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Furniture</span>
+            <div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--amber)"></div></div>
+            <span class="bar-val">33.3%</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Technology</span>
+            <div class="bar-track"><div class="bar-fill" style="width:36%;background:var(--amber)"></div></div>
+            <span class="bar-val">17.8%</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Office Supplies Sub-Category</div>
+          <div class="bar-row">
+            <span class="bar-label">Binders</span>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--coral)"></div></div>
+            <span class="bar-val">10单</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Storage</span>
+            <div class="bar-track"><div class="bar-fill" style="width:90%;background:var(--coral)"></div></div>
+            <span class="bar-val">9单</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Paper</span>
+            <div class="bar-track"><div class="bar-fill" style="width:50%;background:var(--muted)"></div></div>
+            <span class="bar-val">5单</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Art</span>
+            <div class="bar-track"><div class="bar-fill" style="width:30%;background:var(--muted)"></div></div>
+            <span class="bar-val">3单</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:16px;">
+        <p><strong>Binders 不是流失原因。</strong>通过查看8个购买 Binders 的客户的全历史记录（购买次数、时间间隔、品类构成），发现其中既有一次性客户，也有连续多年购买的老客户。Binders 只是这批客户购买记录中的顺带品类，不是他们与平台关系的核心。相关性 ≠ 因果性。</p>
+      </div>
+    </div>
+
+    <!-- 3b: 案例 -->
+    <div style="margin-bottom: 32px;">
+      <h3 style="font-size:16px; font-weight:600; color:#fff; margin-bottom:8px;">3b · 异常个案：老客户为何流失？</h3>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:20px;">品类分析揭示了一个反常：部分连续多年购买的老客户也出现在流失名单中。选取最典型案例深挖其行为轨迹，建立归因假说。</p>
+
+      <div class="card">
+        <div class="case-header">
+          <span class="case-id">TS-21160</span>
+          <span class="case-badge">连续3年购买 → 2018年彻底消失</span>
+        </div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2015-04</div>
+            <div class="tl-text">首次购买 Binders（小额 $2.5）</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-date">2016-04</div>
+            <div class="tl-text">两单集中采购：Phones + Furniture + Binders，消费超 $1,000</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot active"></div>
+            <div class="tl-date">2017-03</div>
+            <div class="tl-text">小额消耗品（Supplies）</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot active"></div>
+            <div class="tl-date">2017-06</div>
+            <div class="tl-text"><strong style="color:#fff;">大额集中采购：Chairs（$422）+ Storage（$254）+ Binders（$38）</strong></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot active"></div>
+            <div class="tl-date">2017-08</div>
+            <div class="tl-text"><strong style="color:#fff;">最后一单：Bookcases（$242）+ Binders（$8.5）</strong></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="border-color:var(--coral); background:var(--coral);"></div>
+            <div class="tl-date">2018</div>
+            <div class="tl-text" style="color:var(--coral);">全年零订单，彻底消失</div>
+          </div>
+        </div>
+        <div class="callout teal" style="margin-top:20px; margin-bottom:0;">
+          <p>2017年 Q2/Q3 集中完成了一次大采购（家具 + 收纳），<strong>需求在短时间内被集中满足，之后自然没有回购动机。</strong>这是"需求满足型流失"假说的直觉来源。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3c: 时间 -->
+    <div>
+      <h3 style="font-size:16px; font-weight:600; color:#fff; margin-bottom:8px;">3c · 时间拐点验证</h3>
+      <p style="font-size:14px; color:var(--muted); margin-bottom:20px;">将个案假说扩展到17人整体，验证"Q2/Q3集中采购后消失"是否是系统性规律。</p>
+
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">17个流失客户的最后一单季度分布</p>
+      <div class="quarter-grid" style="margin-bottom:24px;">
+        <div class="q-box">
+          <div class="q-label">Q1</div>
+          <div class="q-num" style="color:var(--text);">3</div>
+          <div class="q-sub">17.6%</div>
+        </div>
+        <div class="q-box highlight">
+          <div class="q-label">Q2</div>
+          <div class="q-num">8</div>
+          <div class="q-sub">47.1%</div>
+        </div>
+        <div class="q-box" style="border-color:var(--amber); background:var(--amber-dim);">
+          <div class="q-label">Q3</div>
+          <div class="q-num" style="color:var(--amber);">6</div>
+          <div class="q-sub">35.3%</div>
+        </div>
+        <div class="q-box zero">
+          <div class="q-label">Q4</div>
+          <div class="q-num">0</div>
+          <div class="q-sub">0%</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">关键对比：两个证据，缺一不可</div>
+        <table class="compare">
+          <thead>
+            <tr>
+              <th>对比维度</th>
+              <th>数据</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>全体客户 Q4 占比</td>
+              <td style="color:var(--teal); font-weight:600;">53.7%</td>
+              <td style="color:var(--muted); font-size:13px;">平台 Q4 是全年最旺季度，正常客户大量回购</td>
+            </tr>
+            <tr>
+              <td>流失客户 Q4 占比</td>
+              <td style="color:var(--coral); font-weight:600;">0%</td>
+              <td style="color:var(--muted); font-size:13px;">17人无一在 Q4 下单</td>
+            </tr>
+            <tr class="highlight-row">
+              <td>这17人2016年 Q4 占比</td>
+              <td style="color:var(--teal); font-weight:600;">66.7%</td>
+              <td style="color:var(--muted); font-size:13px;">12人有2016年记录，其中8人最后一单在 Q4 ——说明他们本来就是 Q4 活跃客户</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout teal">
+        <p>2017年 Q4 平台销售额高达 <strong>$234,389</strong>，活跃客户341人，是全年最强季度。流失客户2016年本来也在 Q4 活跃，但2017年 Q4 一个都没出现。<strong>平台没有问题，是这17人主动缺席了。</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 4: 结论 ── -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">归因结论</div>
+    <h2>需求满足型流失</h2>
+    <p class="section-desc">基于品类、个案轨迹、时间拐点三个维度的交叉验证，得出以下结论。</p>
+
+    <div class="callout" style="margin-bottom:24px;">
+      <p>这批客户在2017年 Q2/Q3 <strong>集中采购了耐用品或半耐用品</strong>（Furniture 系列 + Binders + Storage），短期内需求饱和。Q4 平台最旺的时候，他们没有回购动机，之后2018年彻底断联。</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">次要假说（现有数据无法证伪）</div>
+      <div class="limitation"><strong>产品质量问题</strong>：数据集中无退货记录或投诉信息，无法验证。</div>
+      <div class="limitation"><strong>竞争对手</strong>：无跨平台购买数据，无法验证。</div>
+      <div class="limitation" style="margin-bottom:0;"><strong>价格因素</strong>：数据集无折扣变动时序，无法验证。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 5: 再激活策略 ── -->
+<section>
+  <div class="wrap">
+    <div class="section-eyebrow">第四步</div>
+    <h2>再激活策略</h2>
+    <p class="section-desc">根据回流客户的正常回购间隔与流失客户的沉默时长，推导出最优干预时间窗口，设计可操作的触达规则。</p>
+
+    <div class="card" style="margin-bottom: 20px;">
+      <div class="card-title">预警阈值推导依据</div>
+      <table class="compare">
+        <thead>
+          <tr>
+            <th>指标</th>
+            <th>回流客户（正常行为基准）</th>
+            <th>流失客户</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>中位数</td>
+            <td>297天后回购</td>
+            <td>216天后彻底沉默</td>
+          </tr>
+          <tr class="highlight-row">
+            <td><strong>25% 分位数</strong></td>
+            <td style="color:var(--teal);"><strong>200天</strong>（最早一批正常回购）</td>
+            <td style="color:var(--coral);"><strong>162天</strong>（最早一批开始沉默）</td>
+          </tr>
+          <tr>
+            <td>样本量</td>
+            <td>79人</td>
+            <td>15人</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">预警窗口示意（以触发品类购买日为起点）</p>
+    <div style="position:relative; height:64px; background:rgba(255,255,255,0.04); border-radius:8px; overflow:visible; margin: 0 0 48px;">
+      <div style="position:absolute;top:0;left:0;width:25%;height:100%;background:rgba(29,169,138,0.15);border-radius:8px 0 0 8px;"></div>
+      <div style="position:absolute;top:0;left:25%;width:16.7%;height:100%;background:rgba(232,160,32,0.2);"></div>
+      <div style="position:absolute;top:0;left:41.7%;width:16.6%;height:100%;background:rgba(224,82,82,0.15);border-radius:0 8px 8px 0;"></div>
+
+      <div style="position:absolute;top:-22px;left:25%;transform:translateX(-50%);">
+        <div style="font-size:11px;color:var(--amber);font-weight:600;text-align:center;white-space:nowrap;">▼ 150天<br><span style="color:var(--muted);font-weight:400;">触发推送</span></div>
+      </div>
+      <div style="position:absolute;top:50%;left:25%;width:1px;height:100%;background:var(--amber);transform:translateY(-50%);"></div>
+
+      <div style="position:absolute;top:-22px;left:41.7%;transform:translateX(-50%);">
+        <div style="font-size:11px;color:var(--coral);font-weight:600;text-align:center;white-space:nowrap;">▼ 162天<br><span style="color:var(--muted);font-weight:400;">流失信号出现</span></div>
+      </div>
+      <div style="position:absolute;top:50%;left:41.7%;width:1px;height:100%;background:var(--coral);transform:translateY(-50%);"></div>
+
+      <div style="position:absolute;top:-22px;left:58.3%;transform:translateX(-50%);">
+        <div style="font-size:11px;color:var(--teal);font-weight:600;text-align:center;white-space:nowrap;">▼ 200天<br><span style="color:var(--muted);font-weight:400;">正常回购高峰</span></div>
+      </div>
+      <div style="position:absolute;top:50%;left:58.3%;width:1px;height:100%;background:var(--teal);transform:translateY(-50%);"></div>
+
+      <div style="position:absolute;bottom:-20px;left:12.5%;font-size:11px;color:var(--muted);transform:translateX(-50%);">正常期</div>
+      <div style="position:absolute;bottom:-20px;left:33%;font-size:11px;color:var(--amber);transform:translateX(-50%);">干预窗口</div>
+      <div style="position:absolute;bottom:-20px;left:50%;font-size:11px;color:var(--coral);transform:translateX(-50%);">危险区</div>
+      <div style="position:absolute;bottom:-20px;left:79%;font-size:11px;color:var(--muted);transform:translateX(-50%);">回购高峰后</div>
+    </div>
+
+    <div class="strategy">
+      <div class="strategy-header">再激活操作规则</div>
+      <div class="strategy-body">
+        <div class="strategy-row">
+          <div class="strategy-key">触发条件</div>
+          <div class="strategy-val">客户最后一单包含 Furniture / Binders / Storage 任一品类</div>
+        </div>
+        <div class="strategy-row">
+          <div class="strategy-key">预警时间</div>
+          <div class="strategy-val" style="color:var(--amber); font-weight:600;">购买触发品类后第 150 天，且期间无任何新订单</div>
+        </div>
+        <div class="strategy-row">
+          <div class="strategy-key">目标客群</div>
+          <div class="strategy-val">M_score ≥ 2（有一定消费价值的客户优先）</div>
+        </div>
+        <div class="strategy-row">
+          <div class="strategy-key">推送品类</div>
+          <div class="strategy-val">Paper、Labels、Art（真正消耗品，低决策成本，易触发回购）</div>
+        </div>
+        <div class="strategy-row">
+          <div class="strategy-key">备选品类</div>
+          <div class="strategy-val">若客户曾购买 Chairs / Tables，可推 Furnishings 配件</div>
+        </div>
+        <div class="strategy-row">
+          <div class="strategy-key">注意事项</div>
+          <div class="strategy-val" style="color:var(--muted); font-size:13px;">150天为初始阈值，建议累积更多数据后通过 A/B 测试优化；当前样本仅15人，置信区间较宽</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Section 6: 分析局限 ── -->
+<section style="border-bottom:none;">
+  <div class="wrap">
+    <div class="section-eyebrow">诚实边界</div>
+    <h2>分析局限性</h2>
+    <p class="section-desc">以下局限需在报告结论中明确标注，避免过度推断。</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="limitation"><strong>样本量小。</strong>真实流失客户仅17人，其中买过触发品类的15人。统计结论置信区间宽，不适合做机器学习预测模型。</div>
+        <div class="limitation"><strong>单一数据源。</strong>无退货、投诉、价格变动记录，竞争对手和产品质量假说无法在现有数据内证伪。</div>
+      </div>
+      <div>
+        <div class="limitation"><strong>R 阈值偏宽。</strong>84.8%的重要挽留客户实际上只是购买周期长，说明模型需要结合品类做差异化 R 阈值校准。</div>
+        <div class="limitation"><strong>时间窗口限制。</strong>分析仅基于2015-2018年数据，季节性规律是否稳定需更长时间序列验证。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center;">
+    <span>Superstore 客户流失分析 · 2017–2018</span>
+    <span>RM 模型 · Python / pandas</span>
+  </div>
+</footer>
+
+</body>
+</html>
