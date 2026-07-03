@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOV 归因分析 · 作品集报告</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink:     #18181B;
+    --ink2:    #52525B;
+    --paper:   #FAFAF9;
+    --white:   #FFFFFF;
+    --rule:    #E4E4E7;
+    --blue:    #2563EB;
+    --blue-lt: #EFF4FF;
+    --green:   #059669;
+    --green-lt:#ECFDF5;
+    --red:     #DC2626;
+    --red-lt:  #FEF2F2;
+    --amber:   #B45309;
+    --amber-lt:#FFFBEB;
+    --purple:  #7C3AED;
+    --purple-lt:#F5F3FF;
+    --mono: 'SF Mono','Fira Code','Consolas',monospace;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    padding: 72px 40px 64px;
+  }
+  .hero-inner { max-width: 900px; margin: 0 auto; }
+  .hero-tag {
+    font-size: 11px; letter-spacing:.12em; text-transform:uppercase;
+    color: rgba(255,255,255,.4); margin-bottom: 20px;
+  }
+  .hero h1 { font-size: 38px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+  .hero h1 span { color: #60A5FA; }
+  .hero-desc { font-size: 15px; color: rgba(255,255,255,.55); max-width: 580px; line-height: 1.8; margin-bottom: 40px; }
+
+  .hero-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pill {
+    font-size: 11px; font-weight: 600; letter-spacing:.06em;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 20px; padding: 4px 12px;
+    color: rgba(255,255,255,.6);
+  }
+
+  /* NAV STRIP */
+  .nav-strip {
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    padding: 0 40px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .nav-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; gap: 0;
+  }
+  .nav-item {
+    padding: 14px 18px;
+    font-size: 12px; font-weight: 600;
+    color: var(--ink2);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .nav-item:hover { color: var(--blue); border-color: var(--blue); }
+
+  /* PAGE */
+  .page { max-width: 900px; margin: 0 auto; padding: 64px 40px 100px; }
+
+  /* SECTION */
+  .section { margin-bottom: 80px; }
+  .section-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing:.12em;
+    text-transform: uppercase; color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .section-title { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .section-lead { color: var(--ink2); font-size: 14px; margin-bottom: 32px; max-width: 640px; }
+
+  /* STEP — for analysis journey */
+  .step { display: flex; gap: 24px; margin-bottom: 40px; }
+  .step-marker {
+    flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .step-num {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; font-family: var(--mono);
+    flex-shrink: 0;
+  }
+  .step-num.revision { background: var(--red); }
+  .step-num.insight  { background: var(--green); }
+  .step-num.boundary { background: var(--purple); }
+  .step-line { width: 1px; flex: 1; background: var(--rule); margin-top: 8px; }
+  .step-body { flex: 1; padding-bottom: 8px; }
+  .step-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing:.08em; color: var(--ink2); margin-bottom: 6px;
+  }
+  .step-label.revision { color: var(--red); }
+  .step-label.insight  { color: var(--green); }
+  .step-label.boundary { color: var(--purple); }
+  .step-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .step-body p { color: var(--ink2); font-size: 13.5px; margin-bottom: 10px; }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid; border-radius: 0 6px 6px 0;
+    padding: 12px 16px; margin: 12px 0;
+    font-size: 13.5px; line-height: 1.7;
+  }
+  .callout.blue   { border-color:var(--blue);   background:var(--blue-lt);   }
+  .callout.green  { border-color:var(--green);  background:var(--green-lt);  }
+  .callout.red    { border-color:var(--red);    background:var(--red-lt);    }
+  .callout.amber  { border-color:var(--amber);  background:var(--amber-lt);  }
+  .callout.purple { border-color:var(--purple); background:var(--purple-lt); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x:auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--rule); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead th {
+    padding: 10px 14px; text-align:left;
+    font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--ink2); background:#F4F4F5;
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover { background: rgba(0,0,0,.02); }
+
+  /* CHIP */
+  .chip {
+    display:inline-block; font-size:11px; font-weight:700;
+    border-radius:3px; padding:2px 7px; white-space:nowrap;
+  }
+  .chip.g { background:var(--green-lt); color:var(--green); }
+  .chip.r { background:var(--red-lt);   color:var(--red);   }
+  .chip.b { background:var(--blue-lt);  color:var(--blue);  }
+  .chip.a { background:var(--amber-lt); color:var(--amber); }
+  .chip.p { background:var(--purple-lt);color:var(--purple);}
+
+  /* FORMULA */
+  .formula {
+    background: var(--ink); color: #E2E8F0;
+    border-radius: 8px; padding: 20px 24px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.8;
+    margin: 16px 0; overflow-x: auto;
+  }
+  .formula .g { color: #34D399; }
+  .formula .r { color: #F87171; }
+  .formula .b { color: #93C5FD; }
+  .formula .d { color: #6B7280; }
+  .formula .y { color: #FCD34D; }
+
+  /* FRAMEWORK DIAGRAM */
+  .framework {
+    background: var(--white); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 28px; margin: 20px 0;
+  }
+  .fw-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .fw-node {
+    border: 1px solid var(--rule); border-radius: 8px;
+    padding: 14px 20px; text-align: center; min-width: 130px;
+  }
+  .fw-node.root { border-color: var(--blue); background: var(--blue-lt); }
+  .fw-node.pos  { border-color: var(--green); background: var(--green-lt); }
+  .fw-node.neg  { border-color: var(--red);   background: var(--red-lt); }
+  .fw-label { font-size: 10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--ink2); margin-bottom:4px; }
+  .fw-val { font-size: 18px; font-weight: 700; }
+  .fw-val.pos { color: var(--green); }
+  .fw-val.neg { color: var(--red); }
+  .fw-op { font-size: 22px; color: var(--rule); font-weight: 300; }
+
+  /* CONCLUSION CARD */
+  .concl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 16px; margin: 20px 0; }
+  .concl-card {
+    background: var(--white); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 18px;
+  }
+  .concl-cat { font-size: 11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+  .concl-cat.tech   { color: var(--blue); }
+  .concl-cat.fur    { color: #D97706; }
+  .concl-cat.off    { color: var(--green); }
+  .concl-cat.method { color: var(--purple); }
+  .concl-card ul { list-style: none; }
+  .concl-card ul li {
+    font-size: 13px; color: var(--ink2);
+    padding: 5px 0; border-bottom: 1px solid var(--rule);
+  }
+  .concl-card ul li:last-child { border-bottom: none; }
+  .concl-card ul li strong { color: var(--ink); }
+
+  /* LESSON ROW */
+  .lesson {
+    background: var(--white); border: 1px solid var(--rule);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .lesson-icon {
+    width: 32px; height: 32px; border-radius: 6px;
+    background: var(--purple-lt); color: var(--purple);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; font-weight: 700;
+  }
+  .lesson-title { font-size: 13.5px; font-weight: 700; margin-bottom: 3px; }
+  .lesson-desc { font-size: 13px; color: var(--ink2); }
+
+  hr { border:none; border-top:1px solid var(--rule); margin: 56px 0; }
+
+  footer {
+    border-top: 1px solid var(--rule); padding: 24px 40px;
+    font-size: 12px; color: var(--ink2);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">数据分析作品集 · Portfolio Project</div>
+    <h1>为什么客单价<span>没有</span>真正增长？<br>AOV 波动归因分析</h1>
+    <p class="hero-desc">
+      表面上 AOV 在 2016→2017 年小幅上升。但拆开来看，是 AUR 提价与 IPT 购买碎片化相互对冲的结果——增长背后，客户资产正在被透支。
+    </p>
+    <div class="hero-pills">
+      <span class="pill">数据集：Kaggle Superstore</span>
+      <span class="pill">时间跨度：2016–2018</span>
+      <span class="pill">方法论：AOV 连锁替代 / Price-Mix Effect / Shapley 分解</span>
+      <span class="pill">工具：Python · Pandas · Jupyter</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="nav-strip">
+  <div class="nav-inner">
+    <a class="nav-item" href="#s1">业务问题</a>
+    <a class="nav-item" href="#s2">分析框架</a>
+    <a class="nav-item" href="#s3">分析过程</a>
+    <a class="nav-item" href="#s4">结论与建议</a>
+    <a class="nav-item" href="#s5">方法论反思</a>
+  </div>
+</nav>
+
+<div class="page">
+
+<!-- ════════ S1 业务问题 ════════ -->
+<div class="section" id="s1">
+  <div class="section-eyebrow">Section 01</div>
+  <div class="section-title">业务问题定义</div>
+  <p class="section-lead">为什么做这个分析，要回答什么问题。</p>
+
+  <p style="color:var(--ink2); font-size:14px; margin-bottom:16px;">
+    观察到 2016→2017 年 GMV 同比增长，但 AOV（客单价）的变动方向和幅度不明确。AOV 是衡量用户购买质量的核心指标，如果 GMV 增长只靠订单量堆起来，而 AOV 在下滑，说明用户每次购买的价值在降低，长期不健康。
+  </p>
+
+  <div class="callout blue">
+    <strong>核心问题：</strong>2016→2017 年 AOV 发生了什么变化？变化由哪些因素驱动？哪些品类是正贡献，哪些是拖累？背后的用户行为是什么？
+  </div>
+
+  <div style="margin-top:24px;">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>指标</th><th>定义</th><th>计算方式</th><th>分析目的</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AOV</strong></td>
+            <td>客单价</td>
+            <td>GMV / 总订单数</td>
+            <td>衡量用户每次购买的总价值</td>
+          </tr>
+          <tr>
+            <td><strong>AUR</strong></td>
+            <td>件均价</td>
+            <td>GMV / 总销售件数</td>
+            <td>衡量商品定价水平</td>
+          </tr>
+          <tr>
+            <td><strong>IPT</strong></td>
+            <td>件/单</td>
+            <td>总销售件数 / 总订单数</td>
+            <td>衡量用户每单购买深度</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════ S2 分析框架 ════════ -->
+<div class="section" id="s2">
+  <div class="section-eyebrow">Section 02</div>
+  <div class="section-title">分析框架</div>
+  <p class="section-lead">如何系统性地拆解 AOV 变动，避免直接跳结论。</p>
+
+  <div class="framework">
+    <div class="fw-row">
+      <div class="fw-node root">
+        <div class="fw-label">AOV</div>
+        <div class="fw-val" style="color:var(--blue);">客单价</div>
+      </div>
+      <div class="fw-op">=</div>
+      <div class="fw-node pos">
+        <div class="fw-label">AUR</div>
+        <div class="fw-val pos">↑ 件均价</div>
+      </div>
+      <div class="fw-op">×</div>
+      <div class="fw-node neg">
+        <div class="fw-label">IPT</div>
+        <div class="fw-val neg">↓ 件/单</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:16px; font-size:12px; color:var(--ink2);">
+      连锁替代法验证闭环：AUR 贡献额 + IPT 贡献额 = AOV 总变动额 ✓
+    </div>
+  </div>
+
+  <p style="color:var(--ink2); font-size:14px; margin:20px 0 12px;">确认两条归因主线后，各自继续下钻：</p>
+
+  <div class="formula">
+<span class="b">AUR 分支</span>
+大盘 AUR → Category 级 Price & Mix Effect 分解
+         → Sub-Category 下钻（Technology / Furniture）
+         → 价格弹性量化
+         → 用户结构（新老客户）验证
+
+<span class="b">IPT 分支</span>
+大盘 IPT → 订单件数分桶（单件 / 双件 / 中单 / 大单）
+         → Category 级中单占比变动
+         → Shapley 分解（稀释效应 vs 自身收缩）
+         → Sub-Category 下钻
+         → 用户结构（新老客户）验证
+
+<span class="d">两条分支最终汇合于同一个问题：
+Technology 老客户为什么在流失？价格是不是原因？</span>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════ S3 分析过程 ════════ -->
+<div class="section" id="s3">
+  <div class="section-eyebrow">Section 03</div>
+  <div class="section-title">分析过程与发现</div>
+  <p class="section-lead">按分析推进的真实顺序记录，包括走错的方向和修正。</p>
+
+  <!-- AUR 线 -->
+  <div style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ink2); margin-bottom:20px; display:flex; align-items:center; gap:12px;">
+    AUR 归因线
+    <span style="height:1px; flex:1; background:var(--rule);"></span>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num">1</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label">发现</div>
+      <div class="step-title">Category 级 Price & Mix Effect 分解</div>
+      <p>用 Shapley 近似（两期平均权重）将 AUR 变动拆分为价格贡献和结构占比贡献，同时做闭环验证确认加总等于实际 AUR 变动。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>AUR 变动</th><th>Price 贡献</th><th>Mix 贡献</th><th>综合</th></tr></thead>
+          <tbody>
+            <tr><td>Technology</td><td><span class="chip g">↑ +23%</span></td><td>+17.35（最大）</td><td>-8.71</td><td><span class="chip g">净正</span></td></tr>
+            <tr><td>Office Supplies</td><td><span class="chip g">↑ +7.9%</span></td><td>+5.18</td><td>+2.03</td><td><span class="chip g">双正最健康</span></td></tr>
+            <tr><td>Furniture</td><td><span class="chip r">↓ -4%</span></td><td>-3.20</td><td>+0.64</td><td><span class="chip r">净负</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num">2</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label">发现</div>
+      <div class="step-title">Technology Sub-Category 下钻：价格弹性量化</div>
+      <p>Technology 整体是正贡献，但内部分化严重。对各子品类分别计算价格弹性，量化定价策略的有效性。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Sub-Category</th><th>AUR 变动</th><th>件数变动</th><th>弹性</th><th>初步判断</th></tr></thead>
+          <tbody>
+            <tr><td>Copiers</td><td><span class="chip a">↑ +153%</span></td><td>-30%</td><td>-0.20</td><td>低弹性，提价可行？（→ 见步骤 3 修正）</td></tr>
+            <tr><td>Machines</td><td><span class="chip g">↑ +51%</span></td><td>稳定</td><td>—</td><td><span class="chip g">提价成功</span></td></tr>
+            <tr><td>Phones</td><td><span class="chip g">↑ +2.4%</span></td><td>稳定</td><td>—</td><td><span class="chip g">温和健康</span></td></tr>
+            <tr><td>Accessories</td><td><span class="chip r">↓ -7.5%</span></td><td>+11.5%</td><td>-1.54</td><td>高弹性，降价带来量增</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num revision">!</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label revision">假设修正</div>
+      <div class="step-title">Copiers 弹性 -0.20 是虚假低弹性</div>
+      <p>弹性数字看起来低，但这个结论站不住。弹性计算的前提是"同一批客户对价格变动的响应"，实际上 2016 年 19 个 Copiers 老客户，2017 年流失了 18 人（94.7%）。件数跌幅只有 -30% 是因为 12 个新客户补入掩盖了流失。</p>
+      <div class="callout red">
+        <strong>修正结论：</strong>Copiers 不是"低弹性品类"，而是"客户置换"——老客户被高价推走，新客户接入。这是完全不同的业务信号，对应的策略也完全不同。
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num">3</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label">发现</div>
+      <div class="step-title">四个 Sub-Category 用户结构对比：两种品类逻辑</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Sub-Category</th><th>流失率 16→17</th><th>流失率 17→18</th><th>品类属性</th></tr></thead>
+          <tbody>
+            <tr><td>Copiers</td><td><span class="chip r">94.7%</span></td><td><span class="chip r">100%</span></td><td><span class="chip a">耐用品，天然零复购</span></td></tr>
+            <tr><td>Machines</td><td><span class="chip r">95.8%</span></td><td><span class="chip r">96.8%</span></td><td><span class="chip a">耐用品，天然零复购</span></td></tr>
+            <tr><td>Phones</td><td><span class="chip a">78.8%</span></td><td><span class="chip g">68.2%（改善）</span></td><td><span class="chip b">消耗品，有复购潜力</span></td></tr>
+            <tr><td>Accessories</td><td><span class="chip a">80.8%</span></td><td><span class="chip g">72.7%（改善）</span></td><td><span class="chip b">消耗品，有复购潜力</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Copiers / Machines 的高流失率是品类天然特性，不是经营问题，不需要追因。Phones / Accessories 理论上有复购需求但流失率偏高，需要继续查原因。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num boundary">?</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label boundary">数据边界</div>
+      <div class="step-title">价格是不是推走老客户的原因？——无法验证</div>
+      <p>用流失客户在 2016 年购买的 Sub-Category 的 AUR 变动来验证价格假设，结果显示价格与流失方向相反（提价最猛的 Copiers 流失最少，降价的 Accessories 流失最多）。初步排除价格为主因。</p>
+      <div class="callout purple">
+        <strong>但这里存在幸存者偏差：</strong>流失客户没有留下 2017 年购买记录，其实际面对的价格不可观测。可观测的只有留存老客户的 AUR——而这批人本身已经是"价格接受者"，用他们推断流失客户是错误的。<br><br>
+        <strong>正确结论：</strong>价格因素在现有数据下无法被干净验证或排除，需要 SKU 级纵向数据。这是数据结构决定的边界，不是分析方法的问题。
+      </div>
+    </div>
+  </div>
+
+  <!-- IPT 线 -->
+  <div style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--ink2); margin:40px 0 20px; display:flex; align-items:center; gap:12px;">
+    IPT 归因线
+    <span style="height:1px; flex:1; background:var(--rule);"></span>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num">4</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label">发现</div>
+      <div class="step-title">Technology 增速垫底，用户分层揭示老客户大规模流失</div>
+      <p>三个品类总订单数都在增长，但 Technology 增速明显落后：</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>2016 订单数</th><th>2017 订单数</th><th>增速</th></tr></thead>
+          <tbody>
+            <tr><td>Furniture</td><td>362</td><td>464</td><td><span class="chip g">+28.2%</span></td></tr>
+            <tr><td>Office Supplies</td><td>762</td><td>931</td><td><span class="chip g">+22.2%</span></td></tr>
+            <tr><td><strong>Technology</strong></td><td>335</td><td>383</td><td><span class="chip a">+14.3%（垫底）</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>对 Technology 做新老客户拆分后，发现表面的增长掩盖了结构性问题：</p>
+      <div class="formula">
+老客户订单：2016年 <span class="b">335单</span> → 2017年 <span class="r">130单</span>   流失 -205单
+新客户订单：2017年 <span class="g">+253单</span>（新增）
+净变动：    <span class="g">+48单</span>（看起来在增长）
+
+<span class="y">实质：-205 + 253 的对冲。增长完全靠新客户输血，老客户在大规模流失。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num">5</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label">发现</div>
+      <div class="step-title">Sub-Category 留存率揭示两种品类逻辑</div>
+      <p>对四个 Sub-Category 分别计算老客户留存率，发现明显分化：</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Sub-Category</th><th>老客户 2016</th><th>老客户留存 2017</th><th>留存率</th><th>品类属性</th></tr></thead>
+          <tbody>
+            <tr><td>Copiers</td><td>19</td><td>1</td><td><span class="chip r">5%</span></td><td><span class="chip a">耐用品</span></td></tr>
+            <tr><td>Machines</td><td>24</td><td>1</td><td><span class="chip r">4%</span></td><td><span class="chip a">耐用品</span></td></tr>
+            <tr><td>Phones</td><td>176</td><td>33</td><td><span class="chip a">19%</span></td><td><span class="chip b">磨损品</span></td></tr>
+            <tr><td>Accessories</td><td>155</td><td>28</td><td><span class="chip a">18%</span></td><td><span class="chip b">磨损品</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout blue">
+        Copiers / Machines 留存率 4-5%，结合 AUR 分析中的耐用品定性，机制清楚——替换周期决定了客户不会在短期内重复购买，这是结构性特征，不需要继续追因。<br><br>
+        Phones / Accessories 留存率约 20%，理论上是磨损品有复购需求，但 80% 的老客户没有回来，背后原因不明，需要继续查。
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num">6</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label">发现</div>
+      <div class="step-title">Phones / Accessories 流失老客户：品类主动转移，非平台流失</div>
+      <p>追踪 Phones 和 Accessories 流失的老客户在 2017 年是否还在平台上：</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th></th><th>Phones 流失老客户</th><th>Accessories 流失老客户</th></tr></thead>
+          <tbody>
+            <tr><td>仍在平台活跃</td><td><span class="chip g">~75%</span></td><td><span class="chip g">~69%</span></td></tr>
+            <tr><td>主要转向品类</td><td>Office Supplies</td><td>Office Supplies</td></tr>
+            <tr><td>完全离开平台</td><td><span class="chip r">~25%</span></td><td><span class="chip r">~31%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>大多数流失老客户没有离开平台，而是转向了其他品类继续消费。这是品类层面的主动转移，不是平台级流失。</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num boundary">?</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-label boundary">数据边界</div>
+      <div class="step-title">价格是不是推走老客户的原因？——验证遭遇幸存者偏差</div>
+      <p>尝试验证"价格上涨导致老客户流失"这一假设。用 Phones 和 Accessories 的 AUR 变动作为价格信号，结果发现价格与流失方向相反：价格下降了，但老客户流失更多。初步排除价格为主因。</p>
+      <div class="callout purple">
+        <strong>但这个验证本身存在幸存者偏差：</strong>流失老客户没有留下 2017 年的购买记录，其实际面对的价格不可观测。用留存老客户的 AUR 来代替，实际上是用"价格接受者"去推断"价格拒绝者"，样本本身已经过筛选。<br><br>
+        <strong>正确结论：</strong>价格因素在现有数据下无法被干净验证或排除。要回答这个问题，需要 SKU 级别的纵向价格数据，让流失客户在离开之前面对的价格变得可观测。这是数据结构决定的边界。
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-marker">
+      <div class="step-num insight">✓</div>
+    </div>
+    <div class="step-body">
+      <div class="step-label insight">两线汇合</div>
+      <div class="step-title">AUR 线与 IPT 线指向同一个结构性问题</div>
+      <div class="callout green">
+        AUR 线：Technology 激进提价拉高了件均价，但老客户大量流失，增长靠新客户对冲。<br><br>
+        IPT 线：Technology 增速最慢，老客户订单从 335 跌到 130，是购买深度下降的根本原因。<br><br>
+        <strong>两条线的核心结论一致：Technology 的增长数字是健康的，但客户资产在被消耗。耐用品（Copiers/Machines）零复购是品类天然特性；磨损品（Phones/Accessories）老客户发生了品类转移，真实触发因素在当前数据下无法验证。</strong>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<hr>
+
+<!-- ════════ S4 结论与建议 ════════ -->
+<div class="section" id="s4">
+  <div class="section-eyebrow">Section 04</div>
+  <div class="section-title">结论与建议</div>
+  <p class="section-lead">按品类给出定价和运营方向，区分"数据已验证"和"需进一步验证"。</p>
+
+  <div class="concl-grid">
+    <div class="concl-card">
+      <div class="concl-cat tech">⚡ Technology — 耐用品（Copiers / Machines）</div>
+      <ul>
+        <li><strong>定性：</strong>天然零复购，每年完全重置客户池</li>
+        <li><strong>Copiers：</strong>2017 年提价 +153% 过激，压制新客获取；2018 年降价后新客 +83% 验证方向</li>
+        <li><strong>建议：</strong>以新客转化率为定价 KPI，而非维护复购</li>
+      </ul>
+    </div>
+    <div class="concl-card">
+      <div class="concl-cat tech">📱 Technology — 消耗品（Phones / Accessories）</div>
+      <ul>
+        <li><strong>定性：</strong>理论上有复购需求，流失率在改善但仍偏高</li>
+        <li><strong>Phones：</strong>老客客单价比新客高 40%（490 vs 357），是最值得维护的用户群</li>
+        <li><strong>Accessories：</strong>老客客单价从 341 跌至 166，购买在降级</li>
+        <li><strong>建议：</strong>建立复购激励机制，这是 Technology 提升 IPT 最大的杠杆点</li>
+      </ul>
+    </div>
+    <div class="concl-card">
+      <div class="concl-cat fur">🪑 Furniture</div>
+      <ul>
+        <li><strong>Tables / Furnishings：</strong>提价策略成功，继续维持</li>
+        <li><strong>Bookcases：</strong>降价后需求反而下降，降价完全无效 → 停止折扣，考虑下架</li>
+        <li><strong>Chairs：</strong>降价刺激有限，属于无效竞争 → 停止折扣，改设满减门槛</li>
+      </ul>
+    </div>
+    <div class="concl-card">
+      <div class="concl-cat off">📦 Office Supplies</div>
+      <ul>
+        <li><strong>定性：</strong>价格温和上涨 + 销量占比提升，双向正贡献，最健康品类</li>
+        <li><strong>建议：</strong>设为引流款，推动阶梯定价，配合 Technology 大件捆绑提升 IPT</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout purple" style="margin-top:20px;">
+    <strong>数据边界声明：</strong>以下结论在现有数据集中无法验证——Accessories 降价是否合算（缺成本数据）；Technology 老客流失的真实触发因素（幸存者偏差，需 SKU 级纵向数据）；耐用品复购周期假设（需 3 年以上客户历史数据）。
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════ S5 方法论反思 ════════ -->
+<div class="section" id="s5">
+  <div class="section-eyebrow">Section 05</div>
+  <div class="section-title">方法论反思</div>
+  <p class="section-lead">这次分析犯了哪些错误，怎么发现的，学到了什么。</p>
+
+  <div class="lesson">
+    <div class="lesson-icon">1</div>
+    <div>
+      <div class="lesson-title">先验证假设前提，再得结论</div>
+      <div class="lesson-desc">Copiers 连带效应假设没有先验证"Copiers 是高连带商品"就直接下结论，导致错误方向走了一段。每个因果链都需要对照组验证。</div>
+    </div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-icon">2</div>
+    <div>
+      <div class="lesson-title">分解分析必须有闭环验证</div>
+      <div class="lesson-desc">AUR 的 Price Effect + Mix Effect 加总没有和 AUR 实际变动对齐验证。任何分解分析都应在最后验证各部分加总等于总变动，这是防止公式错误的最低成本手段。</div>
+    </div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-icon">3</div>
+    <div>
+      <div class="lesson-title">占比指标必须配绝对量</div>
+      <div class="lesson-desc">Technology 中单渗透率下滑，单看占比无法判断是自身流失还是被稀释。补上 Shapley 分解后才发现是两种机制叠加。相对指标单独使用极易误导方向。</div>
+    </div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-icon">4</div>
+    <div>
+      <div class="lesson-title">分母定义必须在写代码前确认</div>
+      <div class="lesson-desc">分析中出现了两种口径混用："品类中单订单 / 品类总订单"和"品类中单订单 / 全部中单总量"，回答的是完全不同的问题。分母是分析设计的核心决策，不是细节。</div>
+    </div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-icon">5</div>
+    <div>
+      <div class="lesson-title">聚合指标会掩盖结构性变化</div>
+      <div class="lesson-desc">Copiers 价格弹性 -0.20 表面低弹性，实际是客户完全置换的结果。重要结论需要拆开新老客户分别验证，不能只看整体均值。</div>
+    </div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-icon">6</div>
+    <div>
+      <div class="lesson-title">识别幸存者偏差</div>
+      <div class="lesson-desc">用留存老客户 AUR 推断流失老客户的价格感知，犯了幸存者偏差——留存客户本身已经是价格接受者。可观测样本经过了筛选，用它推断不可观测群体需要额外假设，这里的假设站不住。</div>
+    </div>
+  </div>
+
+  <div class="lesson">
+    <div class="lesson-icon">7</div>
+    <div>
+      <div class="lesson-title">承认数据边界，本身就是分析结论的一部分</div>
+      <div class="lesson-desc">有些问题在现有数据下无法回答，强行给结论比承认边界更危险。明确说明"这个假设需要什么数据才能验证"，比一个数据撑不住的结论更有价值。</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <span>AOV 波动归因分析 · Kaggle Superstore 2016–2018 · Python / Pandas / Jupyter</span>
+  <span>方法论：连锁替代 · Price-Mix Effect · Shapley 分解 · 新老客户留存分析</span>
+</footer>
+
+</body>
+</html>
