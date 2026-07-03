@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>营销渠道归因分析 · 案例复盘</title>
+<style>
+  :root {
+    --ink: #0f1117;
+    --ink-soft: #3a3d4a;
+    --ink-mute: #7a7f8e;
+    --paper: #f7f8fc;
+    --surface: #ffffff;
+    --border: #e3e6ef;
+    --accent: #3b5bdb;
+    --accent-light: #eef1fd;
+    --accent2: #0ca678;
+    --accent2-light: #e6f7f3;
+    --accent3: #e8590c;
+    --accent3-light: #fef0e8;
+    --yellow: #f59f00;
+    --yellow-light: #fff8e1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 0 32px; }
+
+  /* HEADER */
+  .report-header { background: var(--ink); color: #fff; padding: 64px 0 48px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #8ba3ff; background: rgba(59,91,219,0.22); border-radius: 4px; padding: 3px 10px; margin-bottom: 22px; }
+  .report-header h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 16px; }
+  .report-header .sub { font-size: 15px; color: rgba(255,255,255,0.55); max-width: 560px; }
+
+  /* NAV */
+  .toc-bar { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .toc-bar nav { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+  .toc-bar nav::-webkit-scrollbar { display: none; }
+  .toc-bar a { display: block; padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--ink-mute); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; }
+  .toc-bar a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SECTIONS */
+  section { padding: 52px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border-bottom: none; }
+  .sec-num { font-size: 12px; font-weight: 800; color: var(--accent); letter-spacing: 0.08em; margin-bottom: 10px; }
+  .sec-title { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 22px; }
+  section p { font-size: 15px; color: var(--ink-soft); margin-bottom: 16px; max-width: 720px; }
+  section p:last-child { margin-bottom: 0; }
+  section strong { color: var(--ink); }
+
+  h4.sub-h { font-size: 15px; font-weight: 700; margin: 28px 0 10px; color: var(--ink); }
+
+  /* LIST */
+  ul.plain, ol.plain { margin: 0 0 16px 0; padding-left: 20px; }
+  ul.plain li, ol.plain li { font-size: 15px; color: var(--ink-soft); margin-bottom: 8px; }
+
+  /* CODE */
+  .code-box { background: var(--ink); color: #d8dcf5; border-radius: 8px; padding: 16px 18px; font-family: 'SF Mono', Consolas, monospace; font-size: 12.5px; line-height: 1.65; overflow-x: auto; margin: 14px 0 20px; }
+  .code-box .c { color: #6c8ef7; }
+
+  /* ASSUMPTION CARD */
+  .rev-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; }
+  .rev-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .rev-status { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 4px; letter-spacing: 0.03em; }
+  .status-revised { background: #fef0e8; color: #c2410c; }
+  .status-confirmed { background: #e6f7f3; color: #0ca678; }
+  .rev-title { font-weight: 700; font-size: 14.5px; }
+  .rev-card p { margin-bottom: 6px; font-size: 14px; }
+  .rev-label { font-size: 11px; font-weight: 700; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 10px; margin-bottom: 3px; }
+
+  /* TABLE */
+  table.plain-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 16px 0 20px; }
+  table.plain-table th { background: var(--ink); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; }
+  table.plain-table th:first-child { border-radius: 8px 0 0 0; }
+  table.plain-table th:last-child { border-radius: 0 8px 0 0; }
+  table.plain-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink-soft); }
+  table.plain-table tr:last-child td { border-bottom: none; }
+  table.plain-table .ch { font-family: monospace; font-weight: 600; color: var(--ink); }
+  .pos { color: #0ca678; font-weight: 700; }
+
+  /* RECOMMEND CARDS */
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  @media (max-width: 640px) { .rec-grid { grid-template-columns: 1fr; } }
+  .rec-card { border-radius: 10px; padding: 18px 20px; }
+  .rec-up { background: var(--accent2-light); border-left: 3px solid var(--accent2); }
+  .rec-down { background: var(--accent3-light); border-left: 3px solid var(--accent3); }
+  .rec-card .rec-h { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .rec-up .rec-h { color: #0ca678; }
+  .rec-down .rec-h { color: #c2410c; }
+  .rec-card ul { padding-left: 18px; }
+  .rec-card li { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 5px; font-family: monospace; }
+
+  /* CAVEAT */
+  .caveat-box { background: var(--yellow-light); border-left: 4px solid var(--yellow); border-radius: 0 10px 10px 0; padding: 16px 20px; font-size: 14px; color: #5c3d00; margin-top: 22px; }
+  .caveat-box strong { color: #3d2700; }
+
+  /* REFLECTION */
+  .reflect-item { display: flex; gap: 16px; margin-bottom: 26px; }
+  .reflect-item:last-child { margin-bottom: 0; }
+  .reflect-mark { flex: 0 0 30px; font-size: 20px; }
+  .reflect-body h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .reflect-body p { font-size: 14px; margin-bottom: 0; }
+
+  footer { background: var(--ink); color: rgba(255,255,255,0.4); text-align: center; padding: 28px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header class="report-header">
+  <div class="container">
+    <div class="tag">案例复盘 · Case Study</div>
+    <h1>营销渠道归因分析<br>从模型到预算决策的完整链路</h1>
+    <p class="sub">~100万行用户行为数据 · 马尔可夫链归因 + 三种规则归因模型 · 675个渠道的预算再分配建议</p>
+  </div>
+</header>
+
+<div class="toc-bar">
+  <div class="container">
+    <nav>
+      <a href="#s1">业务问题定义</a>
+      <a href="#s2">分析框架</a>
+      <a href="#s3">分析过程与发现</a>
+      <a href="#s4">结论与建议</a>
+      <a href="#s5">方法论反思</a>
+    </nav>
+  </div>
+</div>
+
+<!-- 1. 业务问题定义 -->
+<section id="s1">
+  <div class="container">
+    <div class="sec-num">01</div>
+    <h2 class="sec-title">业务问题定义</h2>
+    <p>公司在多个营销渠道上投放，用户在转化前往往会接触不止一个渠道——先看到信息流广告，再搜索品牌词，最后通过促销页面完成购买。传统的末次归因把全部功劳记在最后一个触点上，这意味着起到「铺垫」和「中间助推」作用的渠道，在预算决策中长期被系统性低估。</p>
+    <p>要回答的核心问题是：<strong>每个渠道对最终转化的真实贡献是多少，现在的预算分配是否和这个贡献匹配</strong>。这不是一个纯技术问题——归因模型的选择直接决定了下一个周期几十上百万预算往哪个渠道流。选错模型，钱就会持续投给"看起来有效、实际只是占了末触点位置"的渠道。</p>
+    <p>约束条件：数据来自 PostgreSQL 中约100万行用户点击流日志，字段包括 uid、时间戳、campaign、转化标记、点击位置、cost 等。675个渠道，数据周期内共 48,743 次转化。</p>
+  </div>
+</section>
+
+<!-- 2. 分析框架 -->
+<section id="s2">
+  <div class="container">
+    <div class="sec-num">02</div>
+    <h2 class="sec-title">分析框架</h2>
+    <p>把问题拆成三层，逐层往上搭：</p>
+
+    <h4 class="sub-h">第一层：路径重建</h4>
+    <p>原始数据是散乱的点击行，第一步是把它们按用户重新串成有序的转化路径。以「30天无活动」或「已转化」作为路径边界切分，生成 <code>(Start) &gt; A &gt; B &gt; (Conversion/Null)</code> 格式的路径序列，作为后续所有归因计算的输入。</p>
+
+    <h4 class="sub-h">第二层：四种归因模型并行计算</h4>
+    <ul class="plain">
+      <li><strong>马尔可夫链移除效应</strong> —— 不看位置，看「移除某渠道后转化率下降多少」，衡量真实不可替代性</li>
+      <li><strong>末次归因</strong> —— 最后触点独得全部功劳，反映临门一脚渠道的价值</li>
+      <li><strong>首次归因</strong> —— 第一触点独得全部功劳，反映拉新渠道的价值</li>
+      <li><strong>U型归因（40-20-40）</strong> —— 首尾各40%，中间均分20%，兼顾两端</li>
+    </ul>
+    <p>四个模型互为对照，不追求用一个模型给出唯一答案，而是通过对比找出哪些渠道的评价在不同模型下存在系统性差异——这个差异本身就是信息。</p>
+
+    <h4 class="sub-h">第三层：从权重到预算</h4>
+    <p>归因权重是相对指标，不能直接指导预算。需要把权重和渠道的实际花费（<code>cost</code> 字段）关联起来，算出「贡献占比」和「花费占比」的差值，才能落到具体的预算调整金额上。</p>
+  </div>
+</section>
+
+<!-- 3. 分析过程与发现 -->
+<section id="s3">
+  <div class="container">
+    <div class="sec-num">03</div>
+    <h2 class="sec-title">分析过程与发现</h2>
+    <p>过程不是一条直线，中途有两次比较关键的返工。</p>
+
+    <div class="rev-card">
+      <div class="rev-head">
+        <span class="rev-status status-revised">推翻重做</span>
+        <span class="rev-title">移除效应归一化：混淆了正负效应渠道</span>
+      </div>
+      <p><span class="rev-label">最初假设</span>所有渠道的移除效应都是正数（移除渠道会导致转化率下降），直接加总归一化即可。</p>
+      <p><span class="rev-label">问题浮现</span>如果某个渠道其实是「干扰渠道」——移除后转化率反而<em>上升</em>——它的移除效应是负数。混在同一个分母里归一化，会不成比例地压低其他所有渠道的权重，整张归因表都会失真。</p>
+      <p><span class="rev-label">修正</span>把正负效应渠道拆开处理：正效应渠道正常归一化得到权重表，负效应渠道单独输出为「待排查名单」，不参与归一化。这次数据里跑出来的结果是 675 个渠道全部为正效应，没有命中这个陷阱——但如果不做这层检查，是没法确认这一点的，模型的可信度本身就建立在"检查过没有异常"上，而不是"假设没有异常"。</p>
+    </div>
+
+    <div class="rev-card">
+      <div class="rev-head">
+        <span class="rev-status status-confirmed">交叉验证后确认</span>
+        <span class="rev-title">规则归因排名一致 ≠ 渠道价值相同</span>
+      </div>
+      <p><span class="rev-label">最初观察</span>末次、首次、U型三个模型的 Top5 渠道完全一样，排序也几乎一致（30801593、10341182、17686799、5061834、15398570）。乍看会得出「模型选哪个都差不多」的结论。</p>
+      <p><span class="rev-label">交叉对照发现</span>把这三个模型的结果和马尔可夫结果并排看，发现渠道 15184511 和 32368244 在马尔可夫权重里排第2、第3（3.92%、3.42%），但在末次/首次/U型的 Top 名单里完全不出现——它们不是任何路径的首触或末触，只出现在中间环节。规则模型的"一致性"只是因为它们共享同一个统计口径（位置），对中间渠道的盲区也是共享的。</p>
+      <p><span class="rev-label">结论</span>规则模型之间互相印证，验证的是「模型内部一致」，不能替代「和真实贡献一致」的验证。这是这次分析里最容易被忽略、但影响最大的一个发现。</p>
+    </div>
+
+    <h4 class="sub-h">接入花费数据后的发现</h4>
+    <p>把 675 个渠道的归因权重和实际花费占比对比，算出效率系数（贡献占比 ÷ 花费占比）：</p>
+    <table class="plain-table">
+      <thead><tr><th>渠道</th><th>归因权重</th><th>花费占比</th><th>效率系数</th></tr></thead>
+      <tbody>
+        <tr><td class="ch">2869134</td><td>1.33%</td><td>0.08%</td><td class="pos">16.5x</td></tr>
+        <tr><td class="ch">9100693</td><td>2.18%</td><td>0.39%</td><td class="pos">5.5x</td></tr>
+        <tr><td class="ch">30801593</td><td>2.17%</td><td>0.47%</td><td class="pos">4.7x</td></tr>
+      </tbody>
+    </table>
+    <p>180 个渠道效率系数大于1.5（贡献远超花费），142个渠道小于0.5（花费远超贡献）。差距最大的渠道系数达到16倍，说明现有预算分配和实际贡献之间存在明显的结构性错位，不是个别渠道的偶然波动。</p>
+  </div>
+</section>
+
+<!-- 4. 结论与建议 -->
+<section id="s4">
+  <div class="container">
+    <div class="sec-num">04</div>
+    <h2 class="sec-title">结论与建议</h2>
+    <p>基于马尔可夫归因权重和实际花费的差值，计算出每个渠道的「理想花费」，得到具体的预算调整金额（<code>budget_delta = 权重 × 总预算 − 实际花费</code>）：</p>
+
+    <div class="rec-grid">
+      <div class="rec-card rec-up">
+        <div class="rec-h">↑ 建议加大投入</div>
+        <ul>
+          <li>9100693　+5.29　(现5.5x效率)</li>
+          <li>30801593　+5.04　(现4.7x效率)</li>
+          <li>10341182　+4.06　(全场权重最高，仍未到拐点)</li>
+          <li>2869134　+3.69　(现16.5x效率，严重低配)</li>
+          <li>9100689~9100692 渠道族　合计 +6.6</li>
+        </ul>
+      </div>
+      <div class="rec-card rec-down">
+        <div class="rec-h">↓ 建议压缩预算</div>
+        <ul>
+          <li>23385780　效率仅0.12</li>
+          <li>20377297　效率仅0.12</li>
+          <li>17661709　效率仅0.11</li>
+          <li>21005924　效率仅0.06（花费占比0.02%但基本无贡献）</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>其中 9100689–9100693 这五个渠道 ID 连续，判断为同一渠道体系下的子账户，建议作为一个整体申请预算增量，而不是逐个小额调整。</p>
+
+    <div class="caveat-box">
+      <strong>范围说明：</strong>以上是基于历史数据得出的预算再分配<strong>建议</strong>，尚未投入实际执行，因此还没有可验证的执行后数据（如CPO变化、转化率提升幅度）。这份分析给出的是"预算应该往哪调"的方向和幅度，不是已验证的业务成果。
+    </div>
+  </div>
+</section>
+
+<!-- 5. 方法论反思 -->
+<section id="s5">
+  <div class="container">
+    <div class="sec-num">05</div>
+    <h2 class="sec-title">方法论反思</h2>
+
+    <div class="reflect-item">
+      <div class="reflect-mark">🔍</div>
+      <div class="reflect-body">
+        <h4>模型的"一致性"需要用另一个模型去检验，不能自证</h4>
+        <p>三个规则模型互相印证给了一种"结果稳定"的错觉，但它们共享同一个统计逻辑（位置），也就共享同一个盲区。真正有效的检验是引入一个逻辑完全不同的模型（马尔可夫）做交叉对照，而不是让同类模型互相佐证。</p>
+      </div>
+    </div>
+
+    <div class="reflect-item">
+      <div class="reflect-mark">⚠️</div>
+      <div class="reflect-body">
+        <h4>"没有异常"是检查出来的结论，不是默认假设</h4>
+        <p>负效应渠道最终查出来是0个，但这个"0"本身是有价值的信息，前提是真的做了这层检查。如果一开始就假设所有移除效应都是正的、直接归一化，即使这次结果碰巧是对的，这个分析流程本身也是有缺陷的——下次换一批数据可能就会出问题而不自知。</p>
+      </div>
+    </div>
+
+    <div class="reflect-item">
+      <div class="reflect-mark">📐</div>
+      <div class="reflect-body">
+        <h4>权重是相对量，业务决策需要绝对量</h4>
+        <p>归因权重回答的是"这个渠道占多少功劳"，但预算是要花真金白银，权重必须换算成和花费同单位的东西（效率系数、budget_delta）才能真正支撑决策。分析做到"权重排名"就停下，是没有走完最后一公里的。</p>
+      </div>
+    </div>
+
+    <div class="reflect-item">
+      <div class="reflect-mark">🔁</div>
+      <div class="reflect-body">
+        <h4>归因分析不是一次性产出，是需要闭环的</h4>
+        <p>这次的建议还没有执行反馈。方法论上更完整的做法是：调整预算 → 跑一个周期 → 重新计算归因权重 → 观察效率系数是否向1.0收敛。如果高效渠道加了预算后系数下降，说明触及边际递减，是正常的；如果系数依然很高，说明还有增长空间。没有这个反馈环，归因分析只是一次性的快照，不是持续优化的工具。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  营销渠道归因分析 · 案例复盘 · 马尔可夫链 + 规则归因 · ~100万行数据 · 675个渠道
+</footer>
+
+</body>
+</html>
