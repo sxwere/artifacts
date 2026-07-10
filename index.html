@@ -1,467 +1,358 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>数据分析作品集</title>
+<title>数据分析 Portfolio</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #faf7f2;
+    --card-bg:   #ffffff;
+    --border:    #e8e4dc;
+    --text-1:    #1a1815;
+    --text-2:    #6b6760;
+    --text-3:    #9c9892;
+    --ec-color:  #6B4C35;
+    --ec-bg:     #f5ede6;
+    --pa-color:  #E8622A;
+    --pa-bg:     #fef0e8;
+    --tag-bg:    #f0ece5;
+    --tag-text:  #6b6760;
+  }
 
-:root {
-  --bg: #f7f6f3;
-  --surface: #ffffff;
-  --border: #e2dfd8;
-  --ink: #1a1a1a;
-  --mid: #4a4a4a;
-  --muted: #8a8a8a;
-  --accent: #1b4332;
-  --accent-light: #eaf2ed;
-}
+  body {
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 0 1.5rem;
+    max-width: 760px;
+    margin: 0 auto;
+  }
 
-body {
-  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: var(--bg);
-  color: var(--ink);
-  min-height: 100vh;
-}
+  /* ── header ── */
+  header {
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
 
-/* ── Hero ── */
-.hero {
-  background: var(--accent);
-  padding: 64px 0 56px;
-}
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.4rem;
+  }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
+  header p {
+    font-size: 14px;
+    color: var(--text-2);
+  }
 
-.hero-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 16px;
-}
+  /* ── section ── */
+  .section { margin-bottom: 3.5rem; }
 
-.hero-name {
-  font-size: 36px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-  margin-bottom: 10px;
-  line-height: 1.15;
-}
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
 
-.hero-title {
-  font-size: 16px;
-  color: rgba(255,255,255,0.65);
-  margin-bottom: 28px;
-  font-weight: 400;
-}
+  .section-label.ec { color: var(--ec-color); }
+  .section-label.pa { color: var(--pa-color); }
 
-.hero-bio {
-  font-size: 14px;
-  color: rgba(255,255,255,0.55);
-  line-height: 1.8;
-  max-width: 580px;
-  margin-bottom: 32px;
-  border-left: 2px solid rgba(255,255,255,0.2);
-  padding-left: 16px;
-}
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .section-label.ec::before { background: var(--ec-color); }
+  .section-label.pa::before { background: var(--pa-color); }
 
-.skill-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+  .cards { display: flex; flex-direction: column; gap: 12px; }
 
-.skill-tag {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.75);
-  background: rgba(255,255,255,0.07);
-}
+  /* ── card ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
 
-/* ── Section ── */
-.section {
-  padding: 56px 0 64px;
-}
+  .card:hover {
+    border-color: #d0cbc2;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
 
-.section-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 28px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
 
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-1);
+    line-height: 1.4;
+  }
 
-/* ── Project cards ── */
-.projects {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
 
-.project-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 28px;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-  position: relative;
-  overflow: hidden;
-}
+  .card-metrics {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
 
-.project-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--accent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
+  .metric { display: flex; flex-direction: column; }
 
-.project-card:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-  border-color: #c8c4bb;
-}
+  .metric-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-1);
+    line-height: 1.2;
+  }
 
-.project-card:hover::before {
-  opacity: 1;
-}
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 1px;
+  }
 
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
 
-.card-num {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-  opacity: 0.6;
-}
+  .tag {
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
 
-.card-arrow {
-  font-size: 16px;
-  color: var(--muted);
-  transition: transform 0.2s, color 0.2s;
-}
+  .arrow {
+    font-size: 18px;
+    color: var(--text-3);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: color 0.15s, transform 0.15s;
+  }
 
-.project-card:hover .card-arrow {
-  transform: translate(2px, -2px);
-  color: var(--accent);
-}
+  .card:hover .arrow {
+    color: var(--text-2);
+    transform: translateX(2px);
+  }
 
-.card-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 8px;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-}
+  /* ── KKBOX card ── */
+  .card-kkbox {
+    border: none;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+  }
 
-.card-desc {
-  font-size: 13px;
-  color: var(--mid);
-  line-height: 1.7;
-  margin-bottom: 20px;
-}
+  .card-kkbox:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(232, 98, 42, 0.12);
+  }
 
-.card-finding {
-  background: var(--accent-light);
-  border-left: 2px solid var(--accent);
-  padding: 9px 12px;
-  border-radius: 0 4px 4px 0;
-  font-size: 12px;
-  color: var(--mid);
-  line-height: 1.6;
-  margin-bottom: 18px;
-}
+  .kkbox-banner {
+    height: 6px;
+    background: linear-gradient(90deg, #FF8C42, #E8622A, #D44B1F);
+    border-radius: 12px 12px 0 0;
+  }
 
-.card-finding strong { color: var(--accent); }
+  .kkbox-body {
+    background: var(--card-bg);
+    border: 1px solid #f0d8c8;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 1.25rem 1.5rem;
+  }
 
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+  .card-kkbox:hover .kkbox-body {
+    border-color: #e8c8b0;
+  }
 
-.card-tag {
-  font-size: 10.5px;
-  font-weight: 500;
-  padding: 3px 9px;
-  border-radius: 4px;
-  background: var(--bg);
-  color: var(--muted);
-  border: 1px solid var(--border);
-}
+  .kkbox-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #E8622A;
+    background: #fef0e8;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-bottom: 0.5rem;
+  }
 
-/* ── Profile section ── */
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-}
+  /* ── footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    margin-top: 1rem;
+    font-size: 13px;
+    color: var(--text-3);
+  }
 
-.profile-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px 22px;
-}
-
-.profile-card-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.profile-card-items {
-  font-size: 13px;
-  color: var(--mid);
-  line-height: 1.85;
-}
-
-/* ── Footer ── */
-footer {
-  text-align: center;
-  padding: 28px;
-  font-size: 12px;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-}
-
-@media (max-width: 640px) {
-  .projects { grid-template-columns: 1fr; }
-  .profile-grid { grid-template-columns: 1fr; }
-  .container { padding: 0 24px; }
-  .hero { padding: 48px 0 40px; }
-  .hero-name { font-size: 28px; }
-}
+  @media (max-width: 480px) {
+    header { padding: 2.5rem 0 2rem; }
+    .card-metrics { gap: 1rem; }
+  }
 </style>
 </head>
 <body>
 
-<!-- ── Hero ── -->
-<div class="hero">
-  <div class="container">
-    <div class="hero-eyebrow">数据分析作品集 · Portfolio</div>
-    <div class="hero-name">孙雪</div>
-    <div class="hero-title">数据分析师 · 电商方向</div>
-    <div class="hero-bio">
-      审计专业背景，具备财务数据与业务指标的结合理解能力。自 2025 年 11 月起系统学习数据分析，独立完成电商全链路分析项目四项，覆盖 GMV 归因、营销渠道归因（百万级数据）、AOV 拆解及用户留存分析。
-    </div>
-    <div class="skill-tags">
-      <span class="skill-tag">SQL · CTE & 窗口函数</span>
-      <span class="skill-tag">Python · Pandas</span>
-      <span class="skill-tag">连锁替代法</span>
-      <span class="skill-tag">Markov 链归因</span>
-      <span class="skill-tag">队列留存分析</span>
-      <span class="skill-tag">电商漏斗分析</span>
-    </div>
-  </div>
-</div>
+<header>
+  <h1>数据分析 Portfolio</h1>
+  <p>热爱数据分析，记录完整的分析过程、方法论反思与结果。</p>
+</header>
 
-<!-- ── Projects ── -->
-<div class="section">
-  <div class="container">
-    <div class="section-label">分析项目</div>
-    <div class="projects">
+<main>
 
-      <!-- GMV -->
-      <a class="project-card" href="gmv_report.html">
-        <div class="card-header">
-          <span class="card-num">01</span>
-          <span class="card-arrow">↗</span>
+  <!-- 电商专项 -->
+  <section class="section">
+    <div class="section-label ec">电商专项</div>
+    <div class="cards">
+
+      <a class="card" href="https://sxwere.github.io/artifacts/rfm_churn_report.html">
+        <div class="card-top">
+          <div class="card-title">Superstore RFM + 流失归因分析</div>
+          <span class="arrow">→</span>
         </div>
-        <div class="card-title">GMV 下滑归因分析</div>
-        <div class="card-desc">
-          对某 D2C 品牌 7–12 月 GMV 数据进行全链路归因，运用连锁替代法将 GMV 变动分解为 UV、CVR、AOV 三因子，深入下钻至渠道 × 活动 × 用户类型维度。
-        </div>
-        <div class="card-finding">
-          <strong>核心发现：</strong>UV 下滑贡献 GMV 降幅 123%，Paid Ads × Discount Campaign 新客流失为主要根因。
+        <p class="card-desc">基于 RFM 分层识别 VIP 用户与高价值流失客户，追踪四个连续空结果，最终以需求满足度假说定位流失根因。</p>
+        <div class="card-metrics">
+          <div class="metric">
+            <span class="metric-value">150天</span>
+            <span class="metric-label">流失阈值</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">4个</span>
+            <span class="metric-label">空结果发现</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">RFM</span>
+            <span class="metric-label">分析框架</span>
+          </div>
         </div>
         <div class="card-tags">
-          <span class="card-tag">D2C 漏斗 · 12万行</span>
-          <span class="card-tag">连锁替代法</span>
-          <span class="card-tag">Python</span>
+          <span class="tag">RFM 分层</span>
+          <span class="tag">流失归因</span>
+          <span class="tag">pandas</span>
+          <span class="tag">matplotlib</span>
         </div>
       </a>
 
-      <!-- 营销归因 -->
-      <a class="project-card" href="attribution_report.html">
-        <div class="card-header">
-          <span class="card-num">02</span>
-          <span class="card-arrow">↗</span>
+      <a class="card" href="https://sxwere.github.io/artifacts/rees46_report.html">
+        <div class="card-top">
+          <div class="card-title">Rees46 电商用户流失预测</div>
+          <span class="arrow">→</span>
         </div>
-        <div class="card-title">营销渠道多触点归因分析</div>
-        <div class="card-desc">
-          基于约 100 万行用户行为数据，实现 Markov 链删除效应、末次触点、首次触点、U 型四种归因模型，结合渠道成本构建 ROI 效率分析框架。
-        </div>
-        <div class="card-finding">
-          <strong>核心发现：</strong>识别 2 个高价值中间渠道在规则型模型下完全不可见；关键渠道 ROI 效率为均值 16.5 倍却严重资金不足。
+        <p class="card-desc">从 18 个候选特征中通过相关性、显著性、VIF 筛选至 10 个，10 特征子集 AUC 高于全特征集，验证特征选择比特征堆叠更有效。</p>
+        <div class="card-metrics">
+          <div class="metric">
+            <span class="metric-value">0.82</span>
+            <span class="metric-label">最终 AUC</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">10/18</span>
+            <span class="metric-label">最优特征数</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">LR + RF</span>
+            <span class="metric-label">模型对比</span>
+          </div>
         </div>
         <div class="card-tags">
-          <span class="card-tag">PostgreSQL · 百万行</span>
-          <span class="card-tag">Markov 链归因</span>
-          <span class="card-tag">SQL + Python</span>
+          <span class="tag">逻辑回归</span>
+          <span class="tag">随机森林</span>
+          <span class="tag">VIF</span>
+          <span class="tag">显著性检验</span>
+          <span class="tag">scikit-learn</span>
         </div>
       </a>
-
-      <!-- AOV -->
-      <a class="project-card" href="aov_report.html">
-        <div class="card-header">
-          <span class="card-num">03</span>
-          <span class="card-arrow">↗</span>
-        </div>
-        <div class="card-title">AOV 波动归因分析</div>
-        <div class="card-desc">
-          将 AOV 分解为 AUR（件单价）× IPT（件数）双因子，运用 Shapley 近似拆解价格效应与结构效应，下钻至 Sub-Category 层定位根因，区分购买碎片化与需求萎缩两类机制。
-        </div>
-        <div class="card-finding">
-          <strong>核心发现：</strong>AUR 贡献 +26.79 被 IPT 下滑 −14.19 部分对冲；Phones 碎片化与 Copiers 需求萎缩为主要拖累。
-        </div>
-        <div class="card-tags">
-          <span class="card-tag">Kaggle Superstore</span>
-          <span class="card-tag">Price & Mix Effect</span>
-          <span class="card-tag">Python</span>
-        </div>
-      </a>
-
-      <!-- Cohort -->
-      <a class="project-card" href="cohort_report.html">
-        <div class="card-header">
-          <span class="card-num">04</span>
-          <span class="card-arrow">↗</span>
-        </div>
-        <div class="card-title">用户队列留存分析</div>
-        <div class="card-desc">
-          构建滚动 30 天与 14 天微观留存双窗口分析框架，识别不同入组批次的留存差异与关键流失节点，输出可追踪的留存健康指标体系。
-        </div>
-        <div class="card-finding">
-          <strong>分析框架：</strong>Rolling Cohort + 微留存双窗口，覆盖新老用户分层留存对比。
-        </div>
-        <div class="card-tags">
-          <span class="card-tag">D2C 用户数据</span>
-          <span class="card-tag">队列分析</span>
-          <span class="card-tag">Python</span>
-        </div>
-      </a>
-
-      <!-- A/B Test -->
-      <a class="project-card" href="a_b_test.html">
-        <div class="card-header">
-          <span class="card-num">05</span>
-          <span class="card-arrow">↗</span>
-        </div>
-        <div class="card-title">营销活动 A/B 测试分析</div>
-        <div class="card-desc">
-          对照组（无广告）与测试组（广告投放）各 30 天营销数据，沿展示 → 点击 → 浏览 → 加购 → 购买全漏斗逐环节做假设检验，定位广告真正发挥作用与失效的节点。
-        </div>
-        <div class="card-finding">
-          <strong>核心发现：</strong>广告组 CTR 提升 +66.5%，但中段漏斗出现两处连续断层（点击→浏览 −5.7pp、浏览→加购 −19.4pp），导致最终购买转化率反而低 12%。
-        </div>
-        <div class="card-tags">
-          <span class="card-tag">Kaggle · 60行</span>
-          <span class="card-tag">双比例 Z 检验</span>
-          <span class="card-tag">Welch t 检验</span>
-          <span class="card-tag">Python</span>
-        </div>
-      </a>
-
-      <!-- RFM 流失归因 -->
-      <a class="project-card" href="rfm_churn_report.html">
-        <div class="card-header">
-          <span class="card-num">06</span>
-          <span class="card-arrow">↗</span>
-        </div>
-        <div class="card-title">客户流失归因分析</div>
-        <div class="card-desc">
-          基于 Superstore 2017 年数据构建 RM 模型，以2018年行为数据验证真实流失，从品类偏好、个案轨迹、时间拐点三个维度拆解17个高价值客户的流失原因，推导可操作的再激活预警阈值。
-        </div>
-        <div class="card-finding">
-          <strong>核心发现：</strong>流失客户集中于 Q2/Q3 采购耐用品后消失，Q4 平台最旺时主动缺席——需求满足型流失，建议第150天触发再激活推送。
-        </div>
-        <div class="card-tags">
-          <span class="card-tag">Kaggle Superstore</span>
-          <span class="card-tag">RM 模型 · 流失归因</span>
-          <span class="card-tag">Python</span>
-        </div>
-      </a> 
 
     </div>
-  </div>
-</div>
+  </section>
 
-<!-- ── Skills ── -->
-<div class="section" style="padding-top:0;">
-  <div class="container">
-    <div class="section-label">技能与背景</div>
-    <div class="profile-grid">
-      <div class="profile-card">
-        <div class="profile-card-label">数据处理</div>
-        <div class="profile-card-items">
-          SQL（CTE、窗口函数）<br>
-          Python · Pandas<br>
-          PostgreSQL
+  <!-- 产品专项 -->
+  <section class="section">
+    <div class="section-label pa">产品专项</div>
+    <div class="cards">
+
+      <a class="card card-kkbox" href="https://github.com/sxwere/artifacts/blob/main/kkbox_churn_analysis.md">
+        <div class="kkbox-banner"></div>
+        <div class="kkbox-body">
+          <div class="card-top">
+            <div>
+              <span class="kkbox-badge">音乐订阅</span>
+              <div class="card-title">KKBOX 订阅用户流失预测</div>
+            </div>
+            <span class="arrow">→</span>
+          </div>
+          <p class="card-desc">基于 2300 万条交易记录，改造 RFM 框架适配订阅场景，三轮特征迭代量化行为特征与人口特征的增量贡献，核心发现：自动续费开关是最强单一预测因子。</p>
+          <div class="card-metrics">
+            <div class="metric">
+              <span class="metric-value">0.884</span>
+              <span class="metric-label">最终 AUC</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">0.57</span>
+              <span class="metric-label">F1-score</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">968K</span>
+              <span class="metric-label">用户量</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">12</span>
+              <span class="metric-label">最终特征</span>
+            </div>
+          </div>
+          <div class="card-tags">
+            <span class="tag">订阅流失</span>
+            <span class="tag">RF 改造</span>
+            <span class="tag">Odds Ratio</span>
+            <span class="tag">阈值调整</span>
+            <span class="tag">随机森林</span>
+          </div>
         </div>
-      </div>
-      <div class="profile-card">
-        <div class="profile-card-label">分析方法</div>
-        <div class="profile-card-items">
-          连锁替代法<br>
-          Markov 链归因<br>
-          Shapley 值近似<br>
-          队列留存分析
-        </div>
-      </div>
-      <div class="profile-card">
-        <div class="profile-card-label">背景</div>
-        <div class="profile-card-items">
-          审计学专业<br>
-          财务数据理解能力<br>
-          2025.11 起系统学习<br>
-        </div>
-      </div>
+      </a>
+
     </div>
-  </div>
-</div>
+  </section>
+
+</main>
 
 <footer>
-  数据分析作品集 ·联系方式：1305297118@qq.com
+  持续更新中 · 所有项目均包含方法论反思与结果记录
 </footer>
 
 </body>
